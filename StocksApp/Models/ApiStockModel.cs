@@ -1,6 +1,6 @@
 ﻿namespace StocksApp.Models
 {
-    public class StockModel
+    public class ApiStockModel
     {
         public Quoteresponse quoteResponse { get; set; }
     }
