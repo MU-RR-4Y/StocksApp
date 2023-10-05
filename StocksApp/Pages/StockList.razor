@@ -1,5 +1,6 @@
 ﻿@page "/stocklist"
 @using StocksApp.Models;
+@using StocksApp.Data;
 @using System.Text.Json;
 @inject IHttpClientFactory _clientFactory
 <h1>StockList</h1>
@@ -10,35 +11,32 @@
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>Name</th>
-                <th>Current Price</th>
-                <th>Prev Close</th>
-                <th>Price Change</th>
-                <th>% Change</th>
-            </tr>
-        </thead>
-        <tbody>
-           @foreach (var stock in stocks)
-            {
-                <tr>
-                    <td>@stock.symbol</td>
-                    <td>@stock.shortName</td>
-                    <td>@stock.regularMarketPrice</td>
-                    <td>@stock.regularMarketPreviousClose</td>
-                    <td>@stock.regularMarketChange</td>
-                    <td>@stock.regularMarketChangePercent</td>
-                </tr>
-            } 
-       </tbody>
-    </table>
+    <MudTable Items="stocks.Take(54)"Hover="true" >
+       <PagerContent>
+           <MudTablePager PageSizeOptions="new int[]{10,20,50}"/>
+       </PagerContent>
+        <HeaderContent>
+                <MudTh>Symbol</MudTh>
+                <MudTh>Name</MudTh>
+                <MudTh>Current Price</MudTh>
+                <MudTh>Prev Close</MudTh>
+                <MudTh>Price Change</MudTh>
+                <MudTh>% Change</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+                <MudTd DataLabel="Symbol">@context.symbol</MudTd>
+                <MudTd DataLabel="Name">@context.shortName</MudTd>
+                <MudTd DataLabel="Current Price">@context.regularMarketPrice</MudTd>
+                <MudTd DataLabel="Prev Close">@context.regularMarketPreviousClose</MudTd>
+                <MudTd DataLabel="Price Change">@context.regularMarketChange</MudTd>
+                <MudTd DataLabel="% Change">@context.regularMarketChangePercent</MudTd>
+       </RowTemplate>
+    </MudTable>
 }
 
 @code {
     Stock[] stocks;
+    StockIdentifierList stockIds = new StockIdentifierList();
 
     protected async override Task OnInitializedAsync()
     {
@@ -46,7 +44,7 @@ else
         var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri("https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=MMM%2CADBE%2CAMD%2CGOOGL%2CGOOG%2CAMZN%2CAXP%2CAMGN%2CAAPL%2CAMAT%2CADP%2CBA%2CBKNG%2CAVGO%2CCAT%2CCVX%2CCSCO%2CKO%2CCMCSA%2CCOST%2CDOW%2CGILD%2CGS%2CHD%2CHON%2CINTC%2CIBM%2CINTU%2CISRG%2CJNJ%2CJPM%2CMCD%2CMRK%2CMETA%2CMSFT%2CMDLZ%2CNFLX%2CNKE%2CNVDA%2CPEP%2CPG%2CQCOM%2CCRM%2CSBUX%2CTSLA%2CTXN%2CTMUS%2CTRV%2CUNH%2CVZ%2CV%2CWBA%2CWMT%2CDIS"),
+                RequestUri = new Uri($"https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols={stockIds.SymbolString}"),
                 Headers =
                 {
                     { "X-RapidAPI-Key", "22cec8c348mshb9ff4f2d3e09e36p13b6f6jsnb90a0998a29b" },
