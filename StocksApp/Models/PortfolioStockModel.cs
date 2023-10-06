@@ -6,29 +6,26 @@ namespace StocksApp.Models
     {
         public int Id { get; set; }
         
-        public string longName { get; set; }
+        
         [Required]
         public string shortName { get; set; }
         [Required]
         public string symbol { get; set; }
         public string exchange { get; set; }
-        public string market { get; set; }
         public string currency { get; set; }
 
         [Required]
-        public float regularMarketPreviousClose { get; set; }
-        public float regularMarketOpen { get; set; }
-        public float regularMarketDayHigh { get; set; }
-        public float regularMarketDayLow { get; set; }
+        public double PreviousClose { get; set; }
+        public double Open { get; set; }
+
 
         [Required]
-        public float regularMarketPrice { get; set; }
-        public int regularMarketTime { get; set; }
-        public int regularMarketVolume { get; set; }
+        public double Price { get; set; }
+
         [Required]
-        public float regularMarketChange { get; set; }
+        public double Change { get; set; }
         [Required]
-        public float regularMarketChangePercent { get; set; }
+        public double ChangePercent { get; set; }
 
     }
 }

@@ -1,18 +1,22 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StocksApp.Models
 {
     public class User
     {
-        private int id {  get; set; }
+        public int Id {  get; set; }
         [Required]
-        private string? FirstName { get; set; }
+        public string? FirstName { get; set; }
         [Required]
-        private string? LastName { get; set; }
+        public string? LastName { get; set; }
         [Required]
-        private Portfolio userPortfolio { get; set; } = new Portfolio();
-        [Required]
-        private Account account { get; set; } = new Account();
+        public int? PortfolioId { get; set; }
+        public Portfolio? userPortfolio { get; set; }
+
 
     }
+
+
 }

@@ -1,0 +1,44 @@
+﻿@page "/users"
+@inject IDbContextFactory<StockAppDbContext> context;
+<PageTitle>User</PageTitle>
+
+@if (UserList is null)
+{
+    <div>Loading ...</div>
+
+}
+else
+{
+    
+<MudTable Items="UserList" Hover="true" Class="d-flex justify-end" >
+    <HeaderContent  >
+        <MudTh>First Name</MudTh>
+        <MudTh>Last Name</MudTh>
+        <MudTh Class="d-flex justify-center">Actions</MudTh>       
+    </HeaderContent>
+    <RowTemplate >
+        <MudTd DataLabel="First Name">@context.FirstName</MudTd>
+        <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+        <MudTd DataLabel="Actions" Class="d-flex justify-center">
+            <MudButton >Portfolio</MudButton>
+            <MudButton>Account</MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+<MudButton Href="/users/new">Add User</MudButton>
+
+}
+
+@code {
+    private User[]? UserList { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        using var ctx = context.CreateDbContext();
+
+        UserList = await ctx.Users
+            .ToArrayAsync();
+
+    }
+}

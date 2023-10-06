@@ -1,5 +1,4 @@
 ﻿@page "/stocklist"
-@using StocksApp.Models;
 @using StocksApp.Data;
 @using System.Text.Json;
 @inject IHttpClientFactory _clientFactory
@@ -11,7 +10,7 @@
 }
 else
 {
-    <MudTable Items="stocks.Take(54)"Hover="true" >
+    <MudTable Items="stocks"Hover="true" >
        <PagerContent>
            <MudTablePager PageSizeOptions="new int[]{10,20,50}"/>
        </PagerContent>

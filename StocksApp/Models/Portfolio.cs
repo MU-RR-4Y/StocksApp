@@ -1,12 +1,16 @@
-﻿namespace StocksApp.Models
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+
+namespace StocksApp.Models
 {
     public class Portfolio
     {
-        private int id {  get; set; }
-        private List<PortfolioStockModel> holdings {  get; set; } = new List<PortfolioStockModel>();
-        private float bookValue { get; set; }
-        private float currentValue { get; set; }
-        private float currentPerformance { get; set; }
-        private List<PortfolioStockModel> watchlist { get; set; } = new List<PortfolioStockModel>();
+        
+        public int Id {  get; set; }
+        public List<PortfolioStockModel> holdings { get; set; } = new();
+        public double? bookValue { get; set; }
+        public double? currentValue { get; set; }
+        public double? currentPerformance { get; set; }
+
     }
 }

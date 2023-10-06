@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using StocksApp.Data;
+using StocksApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
 builder.Services.AddHttpClient();
+builder.Services.AddDbContextFactory<StockAppDbContext>( options => options.UseSqlServer(
+    builder.Configuration.GetConnectionString("StockAppDb")));
+
 
 var app = builder.Build();
 
