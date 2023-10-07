@@ -17,9 +17,9 @@ namespace StocksApp.Models
 
             modelBuilder.Entity<Portfolio>()
                 .HasData(
-                new Portfolio { Id = 1, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { } },
-                new Portfolio { Id = 2, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { } },
-                new Portfolio { Id = 3, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { } });
+                new Portfolio { Id = 1, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, cash = 50000 },
+                new Portfolio { Id = 2, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, cash = 76000 },
+                new Portfolio { Id = 3, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, cash = 25000 });
 
             modelBuilder.Entity<User>()
                 .HasData(

@@ -12,7 +12,7 @@
          <MudTextField T="string" Label="First Name" @bind-Value="user.FirstName" For="@(()=>user.FirstName)" Required="true" RequiredError="First name is required!" />
         <MudTextField T="string" Label="Last Name" @bind-Value="user.LastName" For="@(()=>user.LastName)" Required="true" RequiredError="Last name is required!" />
 
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleValidSubmit" ButtonType="ButtonType.Submit">Register user</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleValidSubmit" ButtonType="ButtonType.Button">Register user</MudButton>
  
     </MudForm>
 }
@@ -21,19 +21,30 @@
 @code {
     MudForm form;
     public User user { get; set; }
+    public StocksApp.Models.Portfolio newPortfolio { get; set; } = new ();
 
     protected override void OnInitialized()
     {
+        newPortfolio = new ();
         user = new();
+        
     }
 
-    private async Task HandleValidSubmit()
+    public async Task HandleValidSubmit()
     {
-        using var ctx = context.CreateDbContext();
-        ctx.Users.Add(user);
-        await ctx.SaveChangesAsync();
 
-        user = new();
+            using var ctx = context.CreateDbContext();
+
+            ctx.Portfolio.Add(newPortfolio);
+            await ctx.SaveChangesAsync();
+
+            user.PortfolioId = newPortfolio.Id;
+
+            ctx.Users.Add(user);
+            await ctx.SaveChangesAsync();
+
+            user = new();
+      
 
     }
 

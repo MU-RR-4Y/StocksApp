@@ -12,7 +12,7 @@ else
 {
     <MudTable Items="stocks"Hover="true" >
        <PagerContent>
-           <MudTablePager PageSizeOptions="new int[]{10,20,50}"/>
+            <MudTablePager PageSizeOptions="new int[]{10,20,int.MaxValue}" />
        </PagerContent>
         <HeaderContent>
                 <MudTh>Symbol</MudTh>

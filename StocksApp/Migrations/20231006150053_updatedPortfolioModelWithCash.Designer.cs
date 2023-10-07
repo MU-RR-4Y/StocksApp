@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StocksApp.Models;
 
@@ -11,9 +12,11 @@ using StocksApp.Models;
 namespace StocksApp.Migrations
 {
     [DbContext(typeof(StockAppDbContext))]
-    partial class StockAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231006150053_updatedPortfolioModelWithCash")]
+    partial class updatedPortfolioModelWithCash
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,7 +54,7 @@ namespace StocksApp.Migrations
                         {
                             Id = 1,
                             bookValue = 0.0,
-                            cash = 50000.0,
+                            cash = 0.0,
                             currentPerformance = 0.0,
                             currentValue = 0.0
                         },
@@ -59,7 +62,7 @@ namespace StocksApp.Migrations
                         {
                             Id = 2,
                             bookValue = 0.0,
-                            cash = 76000.0,
+                            cash = 0.0,
                             currentPerformance = 0.0,
                             currentValue = 0.0
                         },
@@ -67,7 +70,7 @@ namespace StocksApp.Migrations
                         {
                             Id = 3,
                             bookValue = 0.0,
-                            cash = 25000.0,
+                            cash = 0.0,
                             currentPerformance = 0.0,
                             currentValue = 0.0
                         });

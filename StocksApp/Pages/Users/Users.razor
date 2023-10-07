@@ -14,15 +14,15 @@ else
     <HeaderContent  >
         <MudTh>First Name</MudTh>
         <MudTh>Last Name</MudTh>
-        <MudTh Class="d-flex justify-center">Actions</MudTh>       
+        <MudTh>Current Portfolio Value</MudTh>
+        <MudTh>Cash</MudTh>
+
     </HeaderContent>
     <RowTemplate >
         <MudTd DataLabel="First Name">@context.FirstName</MudTd>
         <MudTd DataLabel="Last Name">@context.LastName</MudTd>
-        <MudTd DataLabel="Actions" Class="d-flex justify-center">
-            <MudButton >Portfolio</MudButton>
-            <MudButton>Account</MudButton>
-        </MudTd>
+            <MudTd DataLabel=">Current Portfolio Value">@($"{context.userPortfolio.currentPerformance:C2}")</MudTd>
+                <MudTd DataLabel=">Cash">@($"{context.userPortfolio.cash:C2}")</MudTd>
     </RowTemplate>
 </MudTable>
 
@@ -33,11 +33,12 @@ else
 @code {
     private User[]? UserList { get; set; }
 
-    protected async override Task OnInitializedAsync()
+    protected  override async Task OnInitializedAsync()
     {
         using var ctx = context.CreateDbContext();
 
         UserList = await ctx.Users
+            .Include(u =>u.userPortfolio)
             .ToArrayAsync();
 
     }
