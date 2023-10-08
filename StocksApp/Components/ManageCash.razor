@@ -1,0 +1,50 @@
+﻿@inject IDbContextFactory<StockAppDbContext> context;
+@if(user is not null)
+{
+    <MudPopover Open="@visibility" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.CenterCenter" Style="padding:16px; margin: 16px;">
+        <div class="d-flex flex-column" >
+            <h1 style="text-decoration-line: underline;" >@user.FirstName @user.LastName's Account</h1>
+            <MudText>Current Cash : @($"{user.userPortfolio.cash:C2}")</MudText>
+            <div class="d-flex justify-center">
+                <MudNumericField @bind-Value="amount" T="int"></MudNumericField>
+                <MudButton Variant="Variant.Filled" OnClick="(()=>AddCash(user, amount))" Class="ml-auto mr-n3 mb-1" Color="Color.Success">Add Cash</MudButton>
+            </div>
+                <MudButton Variant="Variant.Filled" OnClick="(()=>WithdrawCash(user))" Color=" Color.Secondary">Withdraw Cash</MudButton>
+        </div>
+    </MudPopover>
+}
+
+
+@code {
+    [Parameter]
+    public User user { get; set; }
+    [Parameter]
+    public bool visibility { get; set; }
+
+    public int amount{ get; set; }
+
+    private async Task AddCash(User user, int amount)
+    {
+        using var ctx = context.CreateDbContext();
+        user.userPortfolio.CreditCash(amount);
+        ctx.Users.Update(user);
+        await ctx.SaveChangesAsync();
+        visibility = false;
+        
+    }
+
+    private async Task WithdrawCash(User user)
+    {
+        using var ctx = context.CreateDbContext();
+        user.userPortfolio.cash = 0;
+        ctx.Users.Update(user);
+        await ctx.SaveChangesAsync();
+        visibility = false;
+
+    }
+
+
+}
+
+
+          

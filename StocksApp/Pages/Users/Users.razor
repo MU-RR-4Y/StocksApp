@@ -1,4 +1,5 @@
 ﻿@page "/users"
+@using StocksApp.Components
 @inject IDbContextFactory<StockAppDbContext> context;
 @inject NavigationManager NavManager;
 <PageTitle>User</PageTitle>
@@ -26,12 +27,17 @@ else
         <MudTd DataLabel=">Current Portfolio Value">@($"{context.userPortfolio.currentPerformance:C2}")</MudTd>
         <MudTd DataLabel=">Available Cash">@($"{context.userPortfolio.cash:C2}")</MudTd>
         <MudTd DataLabel="Actions" class="d-flex justify-space-evenly">
-            <MudButton OnClick="(()=>AddCash(context))" Variant="Variant.Filled" Color="Color.Success" Size="Size.Small">Add Cash</MudButton>
+            <MudButton OnClick="(()=>ManageCash(context))" Variant="Variant.Filled" Size="Size.Small" Color="Color.Success">Manage Cash</MudButton>
             <MudButton OnClick="(()=>GoToPortfolio(context.Id))" Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small">View Portfolio</MudButton>
             <MudButton  OnClick="(()=>Delete(context))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small">Delete</MudButton>
         </MudTd>
+
     </RowTemplate>
 </MudTable>
+
+<ManageCash user ="managedCashUser" visibility= "_isOpen"/>
+
+
 
 <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Secondary" Href="/users/new">Add User</MudButton>
 
@@ -39,8 +45,11 @@ else
 
 @code {
     private User[]? UserList { get; set; }
+    private User managedCashUser;
+    public bool _isOpen = false;
 
     // TODO: add cash to user
+
 
 
 
@@ -54,14 +63,12 @@ else
 
     }
 
-    private async Task Delete(User user)
+    private void ManageCash(User user)
     {
-        using var ctx = context.CreateDbContext();
-        ctx.Users.Remove(user);
-        await ctx.SaveChangesAsync();
-
-        await OnParametersSetAsync();
+        managedCashUser = user;
+        _isOpen = true;
     }
+
 
     private async Task AddCash(User user)
     {
@@ -70,6 +77,24 @@ else
         ctx.Users.Update(user);
         await ctx.SaveChangesAsync();
         
+
+    }
+   
+
+
+
+
+
+
+
+
+    private async Task Delete(User user)
+    {
+        using var ctx = context.CreateDbContext();
+        ctx.Users.Remove(user);
+        await ctx.SaveChangesAsync();
+
+        await OnParametersSetAsync();
     }
 
     private void GoToPortfolio(int id)
