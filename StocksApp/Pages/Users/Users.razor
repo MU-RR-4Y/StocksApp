@@ -1,5 +1,6 @@
 ﻿@page "/users"
 @inject IDbContextFactory<StockAppDbContext> context;
+@inject NavigationManager NavManager;
 <PageTitle>User</PageTitle>
 
 @if (UserList is null)
@@ -15,18 +16,24 @@ else
         <MudTh>First Name</MudTh>
         <MudTh>Last Name</MudTh>
         <MudTh>Current Portfolio Value</MudTh>
-        <MudTh>Cash</MudTh>
+        <MudTh>Available Cash</MudTh>
+        <MudTh class="d-flex justify-center">Actions</MudTh>
 
     </HeaderContent>
     <RowTemplate >
         <MudTd DataLabel="First Name">@context.FirstName</MudTd>
         <MudTd DataLabel="Last Name">@context.LastName</MudTd>
-            <MudTd DataLabel=">Current Portfolio Value">@($"{context.userPortfolio.currentPerformance:C2}")</MudTd>
-                <MudTd DataLabel=">Cash">@($"{context.userPortfolio.cash:C2}")</MudTd>
+        <MudTd DataLabel=">Current Portfolio Value">@($"{context.userPortfolio.currentPerformance:C2}")</MudTd>
+        <MudTd DataLabel=">Available Cash">@($"{context.userPortfolio.cash:C2}")</MudTd>
+        <MudTd DataLabel="Actions" class="d-flex justify-space-evenly">
+            <MudButton Variant="Variant.Filled" Color="Color.Success" Size="Size.Small">Add Cash</MudButton>
+                    <MudButton OnClick="(()=>GoToPortfolio(context.Id))" Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small">View Portfolio</MudButton>
+            <MudButton  OnClick="(()=>Delete(context))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small">Delete</MudButton>
+        </MudTd>
     </RowTemplate>
 </MudTable>
 
-<MudButton Href="/users/new">Add User</MudButton>
+<MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Secondary" Href="/users/new">Add User</MudButton>
 
 }
 
@@ -38,7 +45,7 @@ else
     // TODO: link to view portfolio page
 
 
-    protected  override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         using var ctx = context.CreateDbContext();
 
@@ -46,5 +53,19 @@ else
             .Include(u =>u.userPortfolio)
             .ToArrayAsync();
 
+    }
+
+    private async Task Delete(User user)
+    {
+        using var ctx = context.CreateDbContext();
+        ctx.Users.Remove(user);
+        await ctx.SaveChangesAsync();
+
+        OnParametersSetAsync();
+    }
+
+    private void GoToPortfolio(int id)
+    {
+        NavManager.NavigateTo($"/users/{id}/portfolio");
     }
 }

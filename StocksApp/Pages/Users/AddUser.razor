@@ -1,5 +1,6 @@
 ﻿@page "/users/new"
 @inject IDbContextFactory<StockAppDbContext> context
+@inject NavigationManager NavManager
 @using StocksApp.Models
 <PageTitle>Add User</PageTitle>
 
@@ -8,11 +9,12 @@
 {
     
 
-    <MudForm @ref="form" Model="@user" >
+    // TODO: check for validation on add user form
+    <MudForm @ref="form" Model="@user">
          <MudTextField T="string" Label="First Name" @bind-Value="user.FirstName" For="@(()=>user.FirstName)" Required="true" RequiredError="First name is required!" />
         <MudTextField T="string" Label="Last Name" @bind-Value="user.LastName" For="@(()=>user.LastName)" Required="true" RequiredError="Last name is required!" />
 
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleValidSubmit" ButtonType="ButtonType.Button">Register user</MudButton>
+        <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleValidSubmit" ButtonType="ButtonType.Button">Register user</MudButton>
  
     </MudForm>
 }
@@ -27,25 +29,26 @@
     {
         newPortfolio = new ();
         user = new();
-        
+
     }
 
     public async Task HandleValidSubmit()
     {
+        using var ctx = context.CreateDbContext();
+        ctx.Portfolio.Add(newPortfolio);
+        await ctx.SaveChangesAsync();
 
-            using var ctx = context.CreateDbContext();
+        user.PortfolioId = newPortfolio.Id;
+        ctx.Users.Add(user);
 
-            ctx.Portfolio.Add(newPortfolio);
-            await ctx.SaveChangesAsync();
+        await ctx.SaveChangesAsync();
+        NavigateToUsersPage();
 
-            user.PortfolioId = newPortfolio.Id;
+    }
 
-            ctx.Users.Add(user);
-            await ctx.SaveChangesAsync();
-
-            user = new();
-      
-
+    private void NavigateToUsersPage()
+    {
+        NavManager.NavigateTo("/users");
     }
 
 
