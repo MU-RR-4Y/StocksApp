@@ -26,8 +26,8 @@ else
         <MudTd DataLabel=">Current Portfolio Value">@($"{context.userPortfolio.currentPerformance:C2}")</MudTd>
         <MudTd DataLabel=">Available Cash">@($"{context.userPortfolio.cash:C2}")</MudTd>
         <MudTd DataLabel="Actions" class="d-flex justify-space-evenly">
-            <MudButton Variant="Variant.Filled" Color="Color.Success" Size="Size.Small">Add Cash</MudButton>
-                    <MudButton OnClick="(()=>GoToPortfolio(context.Id))" Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small">View Portfolio</MudButton>
+            <MudButton OnClick="(()=>AddCash(context))" Variant="Variant.Filled" Color="Color.Success" Size="Size.Small">Add Cash</MudButton>
+            <MudButton OnClick="(()=>GoToPortfolio(context.Id))" Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small">View Portfolio</MudButton>
             <MudButton  OnClick="(()=>Delete(context))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small">Delete</MudButton>
         </MudTd>
     </RowTemplate>
@@ -40,9 +40,8 @@ else
 @code {
     private User[]? UserList { get; set; }
 
-    // TODO: remove users
     // TODO: add cash to user
-    // TODO: link to view portfolio page
+
 
 
     protected override async Task OnParametersSetAsync()
@@ -61,7 +60,16 @@ else
         ctx.Users.Remove(user);
         await ctx.SaveChangesAsync();
 
-        OnParametersSetAsync();
+        await OnParametersSetAsync();
+    }
+
+    private async Task AddCash(User user)
+    {
+        using var ctx = context.CreateDbContext();
+        user.userPortfolio.CreditCash(1000);
+        ctx.Users.Update(user);
+        await ctx.SaveChangesAsync();
+        
     }
 
     private void GoToPortfolio(int id)

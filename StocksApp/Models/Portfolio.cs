@@ -13,17 +13,17 @@ namespace StocksApp.Models
         public double? currentPerformance { get; set; } = 0;
         public double? cash { get; set; } = 0;
 
-        private void CreditCash(double amount)
+        public void CreditCash(double amount)
         {
             cash += amount;
         }
 
-        private void DebitCash(double amount)
+        public void DebitCash(double amount)
         {
             cash -= amount;
         }
 
-        private void AddStock(PortfolioStockModel stock, int NumOfShares)
+        public void AddStock(PortfolioStockModel stock, int NumOfShares)
         {
             var cost = NumOfShares * stock.Price;
             holdings.Add(stock);
