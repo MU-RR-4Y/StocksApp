@@ -2,6 +2,8 @@
 @using StocksApp.Data;
 @using System.Text.Json;
 @inject IHttpClientFactory _clientFactory
+@inject IDbContextFactory<StockAppDbContext> ctxFactory
+@inject NavigationManager NavManager
 <h1>StockList</h1>
 
 @if(stocks is null)
@@ -15,7 +17,7 @@ else
             <MudTablePager PageSizeOptions="new int[]{10,20,int.MaxValue}" />
        </PagerContent>
         <HeaderContent>
-                <MudTh>Symbol</MudTh>
+                <MudTh>Stock</MudTh>
                 <MudTh>Name</MudTh>
                 <MudTh>Current Price</MudTh>
                 <MudTh>Prev Close</MudTh>
@@ -23,7 +25,13 @@ else
                 <MudTh>% Change</MudTh>
         </HeaderContent>
         <RowTemplate>
-                <MudTd DataLabel="Symbol">@context.symbol</MudTd>
+                <MudTd DataLabel="Stock">
+                    <MudButton
+                        Variant="Variant.Filled"
+                        Color="Color.Secondary"
+                        OnClick="(()=>GoToStockView(context))"
+                    >View Stock</MudButton> @context.symbol
+                </MudTd>
                 <MudTd DataLabel="Name">@context.shortName</MudTd>
                 <MudTd DataLabel="Current Price">@context.regularMarketPrice</MudTd>
                 <MudTd DataLabel="Prev Close">@context.regularMarketPreviousClose</MudTd>
@@ -59,5 +67,58 @@ else
 
             stocks = content.quoteResponse.result;
         }
+
+        AddStockInfo(stocks);
+
+    }
+
+
+
+    private async Task AddStockInfo(Stock[] stocklist)
+    {
+        using var ctx = ctxFactory.CreateDbContext();
+        foreach (var stock in stocklist)
+        {
+            var databaseStock = ctx.PortfolioStockModel.FirstOrDefault(s => s.symbol == stock.symbol);
+            if (databaseStock is not null)
+            {
+                databaseStock.PreviousClose = stock.regularMarketPreviousClose;
+                databaseStock.Open = stock.regularMarketOpen;
+                databaseStock.Price = stock.regularMarketPrice;
+                databaseStock.Change = stock.regularMarketChange;
+                databaseStock.ChangePercent = stock.regularMarketChangePercent;
+
+                ctx.PortfolioStockModel.Update(databaseStock);
+
+            }
+            else
+            {
+
+                PortfolioStockModel newStock = new PortfolioStockModel
+                    {
+                        shortName = stock.shortName,
+                        symbol = stock.symbol,
+                        exchange = stock.exchange,
+                        currency = stock.currency,
+                        PreviousClose = stock.regularMarketPreviousClose,
+                        Open = stock.regularMarketOpen,
+                        Price = stock.regularMarketPrice,
+                        Change = stock.regularMarketChange,
+                        ChangePercent = stock.regularMarketChangePercent
+                    };
+
+                ctx.PortfolioStockModel.Add(newStock);
+            }
+            await ctx.SaveChangesAsync();
+        }
+    }
+
+    private void GoToStockView(Stock stock)
+    {
+        using var ctx = ctxFactory.CreateDbContext();
+        var DbStock = ctx.PortfolioStockModel
+        .Where(s => s.symbol == stock.symbol)
+        .FirstOrDefault();
+        NavManager.NavigateTo($"/stocklist/{DbStock.Id}");
     }
 }

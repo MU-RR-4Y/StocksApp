@@ -1,10 +1,25 @@
-﻿@page "/stocklist/{id:int}"
+﻿@page "/stocklist/{Id:int}"
+@inject NavigationManager NavManager;
 <h3>StockView</h3>
+
+<div>
+    Stock View Page for stock @Id
+</div>
+
+<MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="NavigateToUsersPage">Back to Stocks</MudButton>
 
 @code {
     // TODO: Stock view to be add, look at bringing in charts? JSinterop or Mudblazor charts
     // TODO: add Buy/Sell buttons/functionality
     // TODO: API call reequired for current spot FX rates.
     // TODO: Look into generating a basic oderconfirmation doc. Where will this be stored?
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private void NavigateToUsersPage()
+    {
+        NavManager.NavigateTo("/stocklist");
+    }
 
 }
