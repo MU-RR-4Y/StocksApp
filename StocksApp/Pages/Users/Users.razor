@@ -1,100 +1,106 @@
 ﻿@page "/users"
 @using StocksApp.Components
-@inject IDbContextFactory<StockAppDbContext> context;
-@inject NavigationManager NavManager;
+@inject IDbContextFactory<StockAppDbContext> context
+@inject NavigationManager NavManager
+
+
 <PageTitle>User</PageTitle>
 
 @if (UserList is null)
 {
     <div>Loading ...</div>
-
 }
 else
 {
     
-<MudTable Items="UserList" Hover="true" Class="d-flex justify-end" >
-    <HeaderContent  >
-        <MudTh>First Name</MudTh>
-        <MudTh>Last Name</MudTh>
-        <MudTh>Current Portfolio Value</MudTh>
-        <MudTh>Available Cash</MudTh>
-        <MudTh class="d-flex justify-center">Actions</MudTh>
+    <MudTable Items="UserList" Hover="true" Class="d-flex justify-end" >
+        <HeaderContent  >
+            <MudTh>First Name</MudTh>
+            <MudTh>Last Name</MudTh>
+            <MudTh>Current Portfolio Value</MudTh>
+            <MudTh>Available Cash</MudTh>
+            <MudTh class="d-flex justify-center">Actions</MudTh>
 
-    </HeaderContent>
-    <RowTemplate >
-        <MudTd DataLabel="First Name">@context.FirstName</MudTd>
-        <MudTd DataLabel="Last Name">@context.LastName</MudTd>
-        <MudTd DataLabel=">Current Portfolio Value">@($"{context.userPortfolio.currentPerformance:C2}")</MudTd>
-        <MudTd DataLabel=">Available Cash">@($"{context.userPortfolio.cash:C2}")</MudTd>
-        <MudTd DataLabel="Actions" class="d-flex justify-space-evenly">
-            <MudButton OnClick="(()=>ManageCash(context))" Variant="Variant.Filled" Size="Size.Small" Color="Color.Success">Manage Cash</MudButton>
-            <MudButton OnClick="(()=>GoToPortfolio(context.Id))" Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small">View Portfolio</MudButton>
-            <MudButton  OnClick="(()=>Delete(context))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small">Delete</MudButton>
-        </MudTd>
+        </HeaderContent>
+        <RowTemplate >
+            <MudTd DataLabel="First Name">@context.FirstName</MudTd>
+            <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+            <MudTd DataLabel=">Current Portfolio Value">@($"{context.userPortfolio.currentPerformance:C2}")</MudTd>
+            <MudTd DataLabel=">Available Cash">@($"{context.userPortfolio.cash:C2}")</MudTd>
+            <MudTd DataLabel="Actions" class="d-flex justify-space-evenly">
+                <MudButton OnClick="(()=>ManageCash(context))" Variant="Variant.Filled" Size="Size.Small" Color="Color.Success">Manage Cash</MudButton>
+                <MudButton OnClick="(()=>GoToPortfolio(context.Id))" Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small">View Portfolio</MudButton>
+                <MudButton  OnClick="(()=>Delete(context))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small">Delete</MudButton>
+            </MudTd>
 
-    </RowTemplate>
-</MudTable>
+        </RowTemplate>
+    </MudTable>
 
-<ManageCash user ="managedCashUser" visibility= "_isOpen"/>
+        <ManageCash user="managedCashUser" visibility="isOpen" AddCash="@AddCashToUser" Withdraw="@WithdrawCash"/>
+ 
 
-
-
-<MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Secondary" Href="/users/new">Add User</MudButton>
-
+    <MudButton Class="mt-2" Variant="Variant.Filled" Color="Color.Secondary" Href="/users/new">Add User</MudButton>
 }
 
 @code {
     private User[]? UserList { get; set; }
     private User managedCashUser;
-    public bool _isOpen = false;
-
-    // TODO: add cash to user
-
-
-
+    private bool managingCash = false;
+    private bool isOpen = false;
 
     protected override async Task OnParametersSetAsync()
     {
-        using var ctx = context.CreateDbContext();
+            await LoadData();
 
+
+    }
+
+    private async Task LoadData()
+    {
+        using var ctx = context.CreateDbContext();
         UserList = await ctx.Users
             .Include(u =>u.userPortfolio)
             .ToArrayAsync();
-
     }
 
     private void ManageCash(User user)
     {
         managedCashUser = user;
-        _isOpen = true;
+        isOpen = true;
+
     }
 
 
-    private async Task AddCash(User user)
+    public async Task AddCashToUser(User user, int amount)
     {
+        isOpen = false;
         using var ctx = context.CreateDbContext();
-        user.userPortfolio.CreditCash(1000);
+        user.userPortfolio.CreditCash(amount);
         ctx.Users.Update(user);
         await ctx.SaveChangesAsync();
-        
+        StateHasChanged();
+
 
     }
+
+    private async Task WithdrawCash(User user)
+    {
+        isOpen = false;
+        using var ctx = context.CreateDbContext();
+        user.userPortfolio.cash = 0;
+        ctx.Users.Update(user);
+        await ctx.SaveChangesAsync();
+        StateHasChanged();
+        
+    }
    
-
-
-
-
-
-
-
 
     private async Task Delete(User user)
     {
         using var ctx = context.CreateDbContext();
         ctx.Users.Remove(user);
         await ctx.SaveChangesAsync();
-
-        await OnParametersSetAsync();
+        await LoadData();
     }
 
     private void GoToPortfolio(int id)

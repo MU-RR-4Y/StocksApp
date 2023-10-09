@@ -6,6 +6,7 @@ using MudBlazor.Services;
 using StocksApp.Data;
 using StocksApp.Models;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
@@ -17,6 +18,7 @@ builder.Services.AddMudServices();
 builder.Services.AddHttpClient();
 builder.Services.AddDbContextFactory<StockAppDbContext>( options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("StockAppDb")));
+
 
 
 var app = builder.Build();

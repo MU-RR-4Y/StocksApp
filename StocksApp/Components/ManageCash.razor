@@ -1,4 +1,7 @@
-﻿@inject IDbContextFactory<StockAppDbContext> context;
+﻿@using StocksApp.Pages.Users;
+@inject IDbContextFactory<StockAppDbContext> context;
+
+
 @if(user is not null)
 {
     <MudPopover Open="@visibility" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.CenterCenter" Style="padding:16px; margin: 16px;">
@@ -7,9 +10,9 @@
             <MudText>Current Cash : @($"{user.userPortfolio.cash:C2}")</MudText>
             <div class="d-flex justify-center">
                 <MudNumericField @bind-Value="amount" T="int"></MudNumericField>
-                <MudButton Variant="Variant.Filled" OnClick="(()=>AddCash(user, amount))" Class="ml-auto mr-n3 mb-1" Color="Color.Success">Add Cash</MudButton>
+                <MudButton Variant="Variant.Filled" OnClick="@_AddCash" Class="ml-auto mr-n3 mb-1" Color="Color.Success">Add Cash</MudButton>
             </div>
-                <MudButton Variant="Variant.Filled" OnClick="(()=>WithdrawCash(user))" Color=" Color.Secondary">Withdraw Cash</MudButton>
+                <MudButton Variant="Variant.Filled" OnClick="@_Withdraw" Color=" Color.Secondary">Withdraw Cash</MudButton>
         </div>
     </MudPopover>
 }
@@ -20,31 +23,31 @@
     public User user { get; set; }
     [Parameter]
     public bool visibility { get; set; }
+    [Parameter]
+    public Func<User, int, Task> AddCash { get; set; }
+    [Parameter]
+    public Func<User, Task> Withdraw { get; set; }
 
     public int amount{ get; set; }
 
-    private async Task AddCash(User user, int amount)
+
+    // invoke callback functions
+
+    private async Task _AddCash()
     {
-        using var ctx = context.CreateDbContext();
-        user.userPortfolio.CreditCash(amount);
-        ctx.Users.Update(user);
-        await ctx.SaveChangesAsync();
-        visibility = false;
-        
+        await AddCash.Invoke(user,amount);
+        amount = 0;
+    } 
+
+    private async Task _Withdraw()
+    {
+        await Withdraw.Invoke(user);
     }
 
-    private async Task WithdrawCash(User user)
-    {
-        using var ctx = context.CreateDbContext();
-        user.userPortfolio.cash = 0;
-        ctx.Users.Update(user);
-        await ctx.SaveChangesAsync();
-        visibility = false;
 
     }
 
 
-}
 
 
           
