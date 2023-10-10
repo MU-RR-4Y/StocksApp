@@ -12,36 +12,22 @@
 
     public class Stock
     {
-        public string language { get; set; }
-        public string region { get; set; }
-        public string quoteType { get; set; }
-        public string typeDisp { get; set; }
-        public string quoteSourceName { get; set; }
-
+        public int Id { get; set; }
+        
         
         public string currency { get; set; }
-        public float forwardPE { get; set; }
-        public float priceToBook { get; set; }
-        public string exchangeTimezoneName { get; set; }
-        public string exchangeTimezoneShortName { get; set; }
-
-        public long ebitda { get; set; }
-
-
-        public float regularMarketChange { get; set; }
-        public float regularMarketChangePercent { get; set; }
+        
+        public double regularMarketChange { get; set; }
+        public double regularMarketChangePercent { get; set; }
         public int regularMarketTime { get; set; }
-        public float regularMarketPrice { get; set; }
-        public float regularMarketDayHigh { get; set; }
-        public float regularMarketDayLow { get; set; }
-        public int regularMarketVolume { get; set; }
-        public float regularMarketPreviousClose { get; set; }
+        public double regularMarketPrice { get; set; }
+        public double regularMarketDayHigh { get; set; }
+        public double regularMarketDayLow { get; set; }
+        public double regularMarketPreviousClose { get; set; }
 
         public string exchange { get; set; }
-        public string market { get; set; }
         public string shortName { get; set; }
-        public string longName { get; set; }
-        public float regularMarketOpen { get; set; }
+        public double regularMarketOpen { get; set; }
         public string symbol { get; set; }
     }
 

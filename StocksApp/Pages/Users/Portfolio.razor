@@ -1,17 +1,41 @@
 ﻿@page "/users/{Userid:int}/portfolio"
 @inject NavigationManager NavManager;
+@inject IDbContextFactory<StockAppDbContext> context
 <PageTitle>Portfolio</PageTitle>
 
 
+<h1>@user.FirstName @user.LastName Portfolio</h1>
 
-<div>TO DO - set up portfolio page for user @UserId</div>
+
+<MudTabs Outlined="true" Position="@Position.Top" Rounded="true" Border="true"
+         ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
+    <MudTabPanel Text="Overview">
+        <MudText>Portfolio Value  : @user.userPortfolio.currentValue  </MudText>
+
+        <MudText>Current Holdings</MudText>
+
+       
+        <MudText>Cash Held : @user.userPortfolio.cash </MudText>
+        <MudText>Contract notes</MudText>
+        
+
+
+    </MudTabPanel>
+    <MudTabPanel Text="Activity">
+        <MudText>Content Two</MudText>
+    </MudTabPanel>
+    <MudTabPanel Text="Admin">
+        <MudText>Content Three</MudText>
+    </MudTabPanel>
+</MudTabs>
 
 <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="NavigateToUsersPage">Back to Users</MudButton>
 
 @code {
     [Parameter]
     public int UserId { get; set; }
-
+    private User user { get; set; }
+    
 
 
     // TODO: setup layout for portfolio view
@@ -19,7 +43,16 @@
     // TODO: track current value
     // TODO: calculate current performance
     // TODO: look at reporting/bookings on individualstocks. access contract notes. Decide what data structure to use to track this. FIFO suggest using Queue.
-    
+
+    protected override async Task OnParametersSetAsync()
+    {
+        using var ctx = context.CreateDbContext();
+        user = ctx.Users
+            .Include(u => u.userPortfolio)
+            .FirstOrDefault(u => u.Id == UserId);
+       
+    }
+
 
     private void NavigateToUsersPage()
     {

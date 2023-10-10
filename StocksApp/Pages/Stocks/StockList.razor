@@ -45,7 +45,7 @@ else
     Stock[] stocks;
     StockIdentifierList stockIds = new StockIdentifierList();
 
-    // TODO: link to individual Stock View
+
 
     protected async override Task OnInitializedAsync()
     {
@@ -79,35 +79,41 @@ else
         using var ctx = ctxFactory.CreateDbContext();
         foreach (var stock in stocklist)
         {
-            var databaseStock = ctx.PortfolioStockModel.FirstOrDefault(s => s.symbol == stock.symbol);
+            var databaseStock = ctx.Stocks.FirstOrDefault(s => s.symbol == stock.symbol);
             if (databaseStock is not null)
             {
-                databaseStock.PreviousClose = stock.regularMarketPreviousClose;
-                databaseStock.Open = stock.regularMarketOpen;
-                databaseStock.Price = stock.regularMarketPrice;
-                databaseStock.Change = stock.regularMarketChange;
-                databaseStock.ChangePercent = stock.regularMarketChangePercent;
+                databaseStock.regularMarketPreviousClose = stock.regularMarketPreviousClose;
+                databaseStock.regularMarketOpen = stock.regularMarketOpen;
+                databaseStock.regularMarketPrice = stock.regularMarketPrice;
+                databaseStock.regularMarketChange = stock.regularMarketChange;
+                databaseStock.regularMarketChangePercent = stock.regularMarketChangePercent;
+                databaseStock.regularMarketTime = stock.regularMarketTime;
+                databaseStock.regularMarketDayLow = stock.regularMarketDayLow;
+                databaseStock.regularMarketDayHigh = stock.regularMarketDayHigh;
 
-                ctx.PortfolioStockModel.Update(databaseStock);
+                ctx.Stocks.Update(databaseStock);
 
             }
             else
             {
 
-                PortfolioStockModel newStock = new PortfolioStockModel
+                Stock newStock = new Stock
                     {
                         shortName = stock.shortName,
                         symbol = stock.symbol,
                         exchange = stock.exchange,
                         currency = stock.currency,
-                        PreviousClose = stock.regularMarketPreviousClose,
-                        Open = stock.regularMarketOpen,
-                        Price = stock.regularMarketPrice,
-                        Change = stock.regularMarketChange,
-                        ChangePercent = stock.regularMarketChangePercent
+                        regularMarketPreviousClose = stock.regularMarketPreviousClose,
+                        regularMarketOpen = stock.regularMarketOpen,
+                        regularMarketPrice = stock.regularMarketPrice,
+                        regularMarketChange = stock.regularMarketChange,
+                        regularMarketChangePercent = stock.regularMarketChangePercent,
+                        regularMarketTime = stock.regularMarketTime,
+                        regularMarketDayLow = stock.regularMarketDayLow,
+                        regularMarketDayHigh = stock.regularMarketDayHigh
                     };
 
-                ctx.PortfolioStockModel.Add(newStock);
+                ctx.Stocks.Add(newStock);
             }
             await ctx.SaveChangesAsync();
         }
@@ -116,7 +122,7 @@ else
     private void GoToStockView(Stock stock)
     {
         using var ctx = ctxFactory.CreateDbContext();
-        var DbStock = ctx.PortfolioStockModel
+        var DbStock = ctx.Stocks
         .Where(s => s.symbol == stock.symbol)
         .FirstOrDefault();
         NavManager.NavigateTo($"/stocklist/{DbStock.Id}");

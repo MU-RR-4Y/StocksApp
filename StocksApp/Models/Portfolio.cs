@@ -8,10 +8,10 @@ namespace StocksApp.Models
         
         public int Id {  get; set; }
         public List<PortfolioStockModel> holdings { get; set; } = new();
-        public double? bookValue { get; set; } = 0;
-        public double? currentValue { get; set; } = 0;
-        public double? currentPerformance { get; set; } = 0;
-        public double? cash { get; set; } = 0;
+        public double bookValue { get; set; } = 0;
+        public double currentValue { get; set; } = 0;
+        public double currentPerformance { get; set; } = 0;
+        public double cash { get; set; } = 0;
 
         public void CreditCash(double amount)
         {
@@ -23,20 +23,20 @@ namespace StocksApp.Models
             cash -= amount;
         }
 
-        public void AddStock(PortfolioStockModel stock, int NumOfShares)
-        {
-            var cost = NumOfShares * stock.Price;
-            holdings.Add(stock);
-            if(cash >= cost) 
-            {
-                DebitCash((double)cost);
-            }
-            else
-            {
-                // to display and error message
-            }
+        //public void AddStock(Stock stock, int NumOfShares)
+        //{
+        //    var cost = NumOfShares * stock.regularMarketPrice;
+        //    holdings.Add(stock);
+        //    if(cash >= cost) 
+        //    {
+        //        DebitCash((double)cost);
+        //    }
+        //    else
+        //    {
+        //        // to display and error message
+        //    }
 
-        }
+        //}
 
     }
 }
