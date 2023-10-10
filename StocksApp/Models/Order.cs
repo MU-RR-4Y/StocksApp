@@ -22,6 +22,6 @@ namespace StocksApp.Models
 
         public double gbpCashValue { get; set; }
         [Required]
-        public int UserId { get; set; }
+        public int portfolioId { get; set; }
     }
 }

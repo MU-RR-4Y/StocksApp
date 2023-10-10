@@ -1,12 +1,64 @@
 ﻿@page "/stocklist/{Id:int}"
 @inject NavigationManager NavManager;
-<h3>StockView</h3>
+@inject IDbContextFactory<StockAppDbContext> context
+<h1>@stock.shortName</h1>
+
 
 <div>
-    Stock View Page for stock @Id
+    <h3>Summary Data</h3>
+    <p>@stock.symbol @stock.currency @stock.regularMarketPrice - Exchange @stock.exchange</p>
 </div>
 
-<MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="NavigateToUsersPage">Back to Stocks</MudButton>
+<div>
+    <br/>
+    <p>***** Stock Price Chart to be added *****</p>
+    <br />
+</div>
+
+<div>
+    <h3>Pricing Data</h3>
+    <p>Current Price : @stock.currency @stock.regularMarketPrice</p>
+    <p>Previous Close: @stock.currency @stock.regularMarketPreviousClose</p>
+    <br/>
+    <p>Daily Change : @stock.currency @stock.regularMarketChange</p>
+    <p>Daily Change % : @stock.regularMarketChangePercent</p>
+    <br/>
+    <p>Day Low : @stock.currency @stock.regularMarketDayLow</p>
+    <p>Day High : @stock.currency @stock.regularMarketDayHigh</p>
+    <p>Current FX rate GBP/USD : **TO be added once API sourced**</p>
+</div>
+
+<br/>
+
+<MudButton Variant="Variant.Filled" Color="Color.Success">Buy stock</MudButton>
+
+<div>
+    <h3>Current Holdings</h3>
+    <MudTable Items="stockHolders" Hover="true" Class="d-flex justify-end">
+        <HeaderContent>
+            <MudTh>First Name</MudTh>
+            <MudTh>Last Name</MudTh>
+            <MudTh>Number of Shares Held</MudTh>
+            <MudTh>Cash Value</MudTh>
+            <MudTh class="d-flex justify-center">Actions</MudTh>
+
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="First Name"> @context.FirstName</MudTd>
+            <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+            <MudTd DataLabel=">Number of Shares Held">To be mapped once stock added to holdings</MudTd>
+                <MudTd DataLabel=">Available Cash">@context.userPortfolio.cash</MudTd>
+                <MudTd DataLabel="Actions" class="d-flex justify-space-evenly">
+                    <MudButton  Variant="Variant.Filled" Size="Size.Small" Color="Color.Success">Increase Position</MudButton>
+                    <MudButton  Variant="Variant.Filled" Color="Color.Error" Size="Size.Small">Sell Stock</MudButton>
+                </MudTd>
+
+            </RowTemplate>
+        </MudTable>
+
+</div>
+
+<MudButton Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small" OnClick="NavigateToUsersPage">Back to Stocks</MudButton>
 
 @code {
     // TODO: Stock view to be add, look at bringing in charts? JSinterop or Mudblazor charts
@@ -16,6 +68,28 @@
 
     [Parameter]
     public int Id { get; set; }
+    public Stock stock { get; set; }
+    public User[] stockHolders { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        using var ctx = context.CreateDbContext();
+        stock = ctx.Stocks.FirstOrDefault(s => s.Id == Id);
+
+        var users = await ctx.Users.ToArrayAsync();
+        var portfolioIds = await ctx.PortfolioStockModel
+                            .Where(p => p.symbol == stock.symbol)
+                            .Select(p => p.Id)
+                            .ToArrayAsync();
+
+        stockHolders = portfolioIds
+                .SelectMany(p => users.Where(u => u.PortfolioId == p).Select(u => u))
+                .ToArray();
+
+        //TODO:test holders load correctly once holdigns are loaded.
+
+       
+    }
 
     private void NavigateToUsersPage()
     {

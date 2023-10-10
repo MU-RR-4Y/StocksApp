@@ -6,6 +6,8 @@ namespace StocksApp.Models
     {
         public int Id { get; set; }
         [Required]
+        public int portfolioId { get; set; }
+        [Required]
         public string shortName { get; set; }
         [Required]
         public string symbol { get; set; }

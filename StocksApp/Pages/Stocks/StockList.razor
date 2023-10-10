@@ -45,7 +45,7 @@ else
     Stock[] stocks;
     StockIdentifierList stockIds = new StockIdentifierList();
 
-
+    // TODO: add state to track page/number of items per page on table
 
     protected async override Task OnInitializedAsync()
     {
@@ -71,8 +71,6 @@ else
         AddStockInfo(stocks);
 
     }
-
-
 
     private async Task AddStockInfo(Stock[] stocklist)
     {
