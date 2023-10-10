@@ -7,8 +7,8 @@ namespace StocksApp.Models
     {
         
         public int Id {  get; set; }
-        public List<PortfolioStockModel> holdings { get; set; } = new();
-        public List<Order> orders { get; set; } = new();
+        public List<PortfolioStockModel> holdings { get; set; } = new List<PortfolioStockModel>();
+        public List<Order> orders { get; set; } = new List<Order>();
         public double bookValue { get; set; } = 0;
         public double currentValue { get; set; } = 0;
         public double currentPerformance { get; set; } = 0;

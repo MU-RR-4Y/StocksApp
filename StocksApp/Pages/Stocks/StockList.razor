@@ -4,7 +4,8 @@
 @inject IHttpClientFactory _clientFactory
 @inject IDbContextFactory<StockAppDbContext> ctxFactory
 @inject NavigationManager NavManager
-<h1>StockList</h1>
+<PageTitle>Stocks</PageTitle>
+<h1>Stock List</h1>
 
 @if(stocks is null)
 {
@@ -78,6 +79,7 @@ else
         foreach (var stock in stocklist)
         {
             var databaseStock = ctx.Stocks.FirstOrDefault(s => s.symbol == stock.symbol);
+
             if (databaseStock is not null)
             {
                 databaseStock.regularMarketPreviousClose = stock.regularMarketPreviousClose;

@@ -12,8 +12,8 @@ using StocksApp.Models;
 namespace StocksApp.Migrations
 {
     [DbContext(typeof(StockAppDbContext))]
-    [Migration("20231010115438_updatedStockModel_PortfolioStockModel")]
-    partial class updatedStockModel_PortfolioStockModel
+    [Migration("20231010210604_initialMigration")]
+    partial class initialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,137 @@ namespace StocksApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("StocksApp.Models.FX_models.FxRates", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("GBPtoUSD")
+                        .HasColumnType("float");
+
+                    b.Property<double>("USDtoGBP")
+                        .HasColumnType("float");
+
+                    b.Property<int>("timestamp")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FxRates");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            GBPtoUSD = 1.0,
+                            USDtoGBP = 1.0,
+                            timestamp = 1
+                        });
+                });
+
+            modelBuilder.Entity("StocksApp.Models.Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("direction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("fxRate")
+                        .HasColumnType("float");
+
+                    b.Property<double>("gbpCashValue")
+                        .HasColumnType("float");
+
+                    b.Property<int>("numberOfShares")
+                        .HasColumnType("int");
+
+                    b.Property<int>("portfolioId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("price")
+                        .HasColumnType("float");
+
+                    b.Property<string>("shortName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("symbol")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("portfolioId");
+
+                    b.ToTable("Orders");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            currency = "USD",
+                            direction = "buy",
+                            fxRate = 0.80100000000000005,
+                            gbpCashValue = 282528.71999999997,
+                            numberOfShares = 2000,
+                            portfolioId = 1,
+                            price = 176.36000000000001,
+                            shortName = "Apple Inc.",
+                            symbol = "AAPL"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            currency = "USD",
+                            direction = "buy",
+                            fxRate = 0.80100000000000005,
+                            gbpCashValue = 42312.023999999998,
+                            numberOfShares = 100,
+                            portfolioId = 2,
+                            price = 528.24000000000001,
+                            shortName = "Intuit Inc.",
+                            symbol = "INTU"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            currency = "USD",
+                            direction = "buy",
+                            fxRate = 0.80100000000000005,
+                            gbpCashValue = 137216.106,
+                            numberOfShares = 450,
+                            portfolioId = 3,
+                            price = 380.68000000000001,
+                            shortName = "Netflix, Inc.",
+                            symbol = "NFLX"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            currency = "USD",
+                            direction = "buy",
+                            fxRate = 0.80100000000000005,
+                            gbpCashValue = 165733.30799999999,
+                            numberOfShares = 1300,
+                            portfolioId = 2,
+                            price = 159.16,
+                            shortName = "Pepsico, Inc.",
+                            symbol = "PEP"
+                        });
+                });
+
             modelBuilder.Entity("StocksApp.Models.Portfolio", b =>
                 {
                     b.Property<int>("Id")
@@ -33,16 +164,16 @@ namespace StocksApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double?>("bookValue")
+                    b.Property<double>("bookValue")
                         .HasColumnType("float");
 
-                    b.Property<double?>("cash")
+                    b.Property<double>("cash")
                         .HasColumnType("float");
 
-                    b.Property<double?>("currentPerformance")
+                    b.Property<double>("currentPerformance")
                         .HasColumnType("float");
 
-                    b.Property<double?>("currentValue")
+                    b.Property<double>("currentValue")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
@@ -84,35 +215,27 @@ namespace StocksApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("Change")
+                    b.Property<double>("averagePrice")
                         .HasColumnType("float");
 
-                    b.Property<double>("ChangePercent")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Open")
-                        .HasColumnType("float");
-
-                    b.Property<int?>("PortfolioId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("PreviousClose")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Price")
+                    b.Property<double>("bookValue")
                         .HasColumnType("float");
 
                     b.Property<string>("currency")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("direction")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<double>("currentPerformance")
+                        .HasColumnType("float");
 
-                    b.Property<string>("exchange")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<double>("currentValue")
+                        .HasColumnType("float");
+
+                    b.Property<int>("numberofShares")
+                        .HasColumnType("int");
+
+                    b.Property<int>("portfolioId")
+                        .HasColumnType("int");
 
                     b.Property<string>("shortName")
                         .IsRequired()
@@ -124,7 +247,7 @@ namespace StocksApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PortfolioId");
+                    b.HasIndex("portfolioId");
 
                     b.ToTable("PortfolioStockModel");
                 });
@@ -394,11 +517,22 @@ namespace StocksApp.Migrations
                         });
                 });
 
+            modelBuilder.Entity("StocksApp.Models.Order", b =>
+                {
+                    b.HasOne("StocksApp.Models.Portfolio", null)
+                        .WithMany("orders")
+                        .HasForeignKey("portfolioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("StocksApp.Models.PortfolioStockModel", b =>
                 {
                     b.HasOne("StocksApp.Models.Portfolio", null)
                         .WithMany("holdings")
-                        .HasForeignKey("PortfolioId");
+                        .HasForeignKey("portfolioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("StocksApp.Models.User", b =>
@@ -415,6 +549,8 @@ namespace StocksApp.Migrations
             modelBuilder.Entity("StocksApp.Models.Portfolio", b =>
                 {
                     b.Navigation("holdings");
+
+                    b.Navigation("orders");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,10 @@
 ﻿@page "/stocklist/{Id:int}"
+@using StocksApp.Models.FX_models;
 @inject NavigationManager NavManager;
 @inject IDbContextFactory<StockAppDbContext> context
+@inject IHttpClientFactory _clientFactory
+
+<PageTitle>@stock.shortName</PageTitle>
 <h1>@stock.shortName</h1>
 
 
@@ -25,7 +29,8 @@
     <br/>
     <p>Day Low : @stock.currency @stock.regularMarketDayLow</p>
     <p>Day High : @stock.currency @stock.regularMarketDayHigh</p>
-    <p>Current FX rate GBP/USD : **TO be added once API sourced**</p>
+    <p>Current FX rate GBP/USD : @_GBPtoUSD</p>
+    <p>Inversed FX rate USD/GBP : @_USDtoGBP</p>
 </div>
 
 <br/>
@@ -70,12 +75,25 @@
     public int Id { get; set; }
     public Stock stock { get; set; }
     public User[] stockHolders { get; set; }
+    public double _GBPtoUSD { get; set; }
+    public double _USDtoGBP { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
+
+
         using var ctx = context.CreateDbContext();
+
+        //Get FX rates
+        var fxrates = ctx.FxRates.FirstOrDefault();
+        _GBPtoUSD = fxrates.GBPtoUSD;
+        _USDtoGBP = fxrates.USDtoGBP;
+
+
+        //Get Stock
         stock = ctx.Stocks.FirstOrDefault(s => s.Id == Id);
 
+        //Get users and portfolios to create array of users who hold this stock in their portfolio
         var users = await ctx.Users.ToArrayAsync();
         var portfolioIds = await ctx.PortfolioStockModel
                             .Where(p => p.symbol == stock.symbol)
@@ -88,7 +106,7 @@
 
         //TODO:test holders load correctly once holdigns are loaded.
 
-       
+
     }
 
     private void NavigateToUsersPage()

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using StocksApp.Models.FX_models;
 
 namespace StocksApp.Models
 {
@@ -9,6 +10,7 @@ namespace StocksApp.Models
         public DbSet<Stock>Stocks => Set<Stock>();
         public DbSet<PortfolioStockModel> PortfolioStockModel => Set<PortfolioStockModel>();
         public DbSet<Order> Orders => Set<Order>();
+        public DbSet<FxRates> FxRates => Set<FxRates>();    
 
         public StockAppDbContext(DbContextOptions<StockAppDbContext> options) : base(options) { }
 
@@ -42,8 +44,18 @@ namespace StocksApp.Models
                 new Stock { Id = 9, regularMarketOpen = 173.79, currency = "USD", exchange = "NMS", shortName = "Apple Inc", symbol = "AAPL", regularMarketPreviousClose = 173.66, regularMarketPrice = 173.54, regularMarketChange = -0.120010376, regularMarketChangePercent = -0.06910652, regularMarketTime = 0 },
                 new Stock { Id = 10, regularMarketOpen = 139.45, currency = "USD", exchange = "NMS", shortName = "Applied Materials, Inc.", symbol = "AMAT", regularMarketPreviousClose = 139.3, regularMarketPrice = 138.57, regularMarketChange = -0.7299957, regularMarketChangePercent = -0.52404577, regularMarketTime = 0 });
 
-            modelBuilder.Entity<Order>();
+            modelBuilder.Entity<Order>()
+                .HasData(
+                new Order { Id = 1, shortName = "Apple Inc.", direction = "buy", numberOfShares = 2000, symbol = "AAPL", currency = "USD", price = 176.36, fxRate = 0.801, gbpCashValue = 282528.72, portfolioId = 1 },
+                new Order { Id = 2, shortName = "Intuit Inc.", direction = "buy", numberOfShares = 100, symbol = "INTU", currency = "USD", price = 528.24, fxRate = 0.801, gbpCashValue = 42312.024, portfolioId = 2 },
+                new Order { Id = 3, shortName = "Netflix, Inc.", direction = "buy", numberOfShares = 450, symbol = "NFLX", currency = "USD", price = 380.68, fxRate = 0.801, gbpCashValue = 137216.106, portfolioId = 3 },
+                new Order { Id = 4, shortName = "Pepsico, Inc.", direction = "buy", numberOfShares = 1300, symbol = "PEP", currency = "USD", price = 159.16, fxRate = 0.801, gbpCashValue = 165733.308, portfolioId = 2 }
+                );
             modelBuilder.Entity<PortfolioStockModel>();
+            modelBuilder.Entity<FxRates>()
+                .HasData(
+                    new FxRates { Id = 1, GBPtoUSD = 1, USDtoGBP = 1, timestamp =1 }
+                );
         }
 
     }

@@ -22,6 +22,37 @@ namespace StocksApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("StocksApp.Models.FX_models.FxRates", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("GBPtoUSD")
+                        .HasColumnType("float");
+
+                    b.Property<double>("USDtoGBP")
+                        .HasColumnType("float");
+
+                    b.Property<int>("timestamp")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FxRates");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            GBPtoUSD = 1.0,
+                            USDtoGBP = 1.0,
+                            timestamp = 1
+                        });
+                });
+
             modelBuilder.Entity("StocksApp.Models.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -66,6 +97,60 @@ namespace StocksApp.Migrations
                     b.HasIndex("portfolioId");
 
                     b.ToTable("Orders");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            currency = "USD",
+                            direction = "buy",
+                            fxRate = 0.80100000000000005,
+                            gbpCashValue = 282528.71999999997,
+                            numberOfShares = 2000,
+                            portfolioId = 1,
+                            price = 176.36000000000001,
+                            shortName = "Apple Inc.",
+                            symbol = "AAPL"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            currency = "USD",
+                            direction = "buy",
+                            fxRate = 0.80100000000000005,
+                            gbpCashValue = 42312.023999999998,
+                            numberOfShares = 100,
+                            portfolioId = 2,
+                            price = 528.24000000000001,
+                            shortName = "Intuit Inc.",
+                            symbol = "INTU"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            currency = "USD",
+                            direction = "buy",
+                            fxRate = 0.80100000000000005,
+                            gbpCashValue = 137216.106,
+                            numberOfShares = 450,
+                            portfolioId = 3,
+                            price = 380.68000000000001,
+                            shortName = "Netflix, Inc.",
+                            symbol = "NFLX"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            currency = "USD",
+                            direction = "buy",
+                            fxRate = 0.80100000000000005,
+                            gbpCashValue = 165733.30799999999,
+                            numberOfShares = 1300,
+                            portfolioId = 2,
+                            price = 159.16,
+                            shortName = "Pepsico, Inc.",
+                            symbol = "PEP"
+                        });
                 });
 
             modelBuilder.Entity("StocksApp.Models.Portfolio", b =>

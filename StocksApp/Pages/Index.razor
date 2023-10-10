@@ -1,7 +1,59 @@
 ﻿@page "/"
+@using StocksApp.Models.FX_models;
+@inject IHttpClientFactory _clientFactory
+@inject IDbContextFactory<StockAppDbContext> context
 
 <PageTitle>Index</PageTitle>
 
 <MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
 <MudText Class="mb-8">Welcome to your new app, powered by MudBlazor!</MudText>
 <MudAlert Severity="Severity.Normal">You can find documentation and examples on our website here: <MudLink Href="https://mudblazor.com" Typo="Typo.body2" Color="Color.Inherit"><b>www.mudblazor.com</b></MudLink></MudAlert>
+
+
+@code{
+
+    public double _GBPtoUSD { get; set; }
+    public double _USDtoGBP { get; set; }
+    public int _timestamp { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        GetFxRates();
+       
+    }
+
+    private async Task GetFxRates()
+    {
+        var client = _clientFactory.CreateClient();
+        var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri("https://fxmarketapi.com/apilive?api_key=YaqTzlUy71InhGNtjBRR&currency=GBPUSD,USDGBP"),
+            };
+        using (var response = await client.SendAsync(request))
+        {
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadFromJsonAsync<ApiFxRateModel>();
+
+            _GBPtoUSD = content.price.GBPUSD;
+            _USDtoGBP = content.price.USDGBP;
+            _timestamp = content.timestamp;
+        }
+
+        SaveFxRates();
+    }
+
+    private async Task SaveFxRates()
+    {
+        using var ctx = context.CreateDbContext();
+
+        var databaseFx = ctx.FxRates.FirstOrDefault();
+
+            databaseFx.GBPtoUSD = _GBPtoUSD;
+            databaseFx.USDtoGBP = _USDtoGBP;
+            databaseFx.timestamp = _timestamp;
+
+        ctx.FxRates.Update(databaseFx);
+        await ctx.SaveChangesAsync();
+    }
+}
