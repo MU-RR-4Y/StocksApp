@@ -41,17 +41,19 @@
     <h3>Current Holdings</h3>
     <MudTable Items="stockHolders" Hover="true" Class="d-flex justify-end">
         <HeaderContent>
-            <MudTh>First Name</MudTh>
-            <MudTh>Last Name</MudTh>
+            <MudTh>Name</MudTh>
             <MudTh>Number of Shares Held</MudTh>
             <MudTh>Cash Value</MudTh>
             <MudTh class="d-flex justify-center">Actions</MudTh>
 
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="First Name"> @context.FirstName</MudTd>
-            <MudTd DataLabel="Last Name">@context.LastName</MudTd>
-            <MudTd DataLabel=">Number of Shares Held">To be mapped once stock added to holdings</MudTd>
+            <MudTd DataLabel="Name"> @context.FirstName @context.LastName</MudTd>
+            <MudTd DataLabel=">Number of Shares Held">
+                @context.userPortfolio.holdings[0].numberofShares
+                @* need to look at a for loop for this *@
+
+            </MudTd>
                 <MudTd DataLabel=">Available Cash">@context.userPortfolio.cash</MudTd>
                 <MudTd DataLabel="Actions" class="d-flex justify-space-evenly">
                     <MudButton  Variant="Variant.Filled" Size="Size.Small" Color="Color.Success">Increase Position</MudButton>
@@ -94,18 +96,22 @@
         stock = ctx.Stocks.FirstOrDefault(s => s.Id == Id);
 
         //Get users and portfolios to create array of users who hold this stock in their portfolio
-        var users = await ctx.Users.ToArrayAsync();
+        var users = await ctx.Users.Include(u => u.userPortfolio).ToArrayAsync();
         var portfolioIds = await ctx.PortfolioStockModel
                             .Where(p => p.symbol == stock.symbol)
                             .Select(p => p.Id)
                             .ToArrayAsync();
 
         stockHolders = portfolioIds
-                .SelectMany(p => users.Where(u => u.PortfolioId == p).Select(u => u))
-                .ToArray();
+                .SelectMany(p => users
+                    .Where(u => u.PortfolioId == p)
+                    .Select(u => u))
+                    .ToArray();
 
         //TODO:test holders load correctly once holdigns are loaded.
 
+        PortfolioStockModel PSM = new PortfolioStockModel { Id = 1, portfolioId = 1, shortName = "Apple Inc", symbol = "AAPL", numberofShares = 2000, currency = "USD", currentValue = 0, currentPerformance = 0 };
+        stockHolders[0].userPortfolio.AddHolding(PSM);
 
     }
 
@@ -113,5 +119,6 @@
     {
         NavManager.NavigateTo("/stocklist");
     }
+
 
 }

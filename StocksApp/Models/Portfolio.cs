@@ -24,20 +24,14 @@ namespace StocksApp.Models
             cash -= amount;
         }
 
-        //public void AddStock(Stock stock, int NumOfShares)
-        //{
-        //    var cost = NumOfShares * stock.regularMarketPrice;
-        //    holdings.Add(stock);
-        //    if(cash >= cost) 
-        //    {
-        //        DebitCash((double)cost);
-        //    }
-        //    else
-        //    {
-        //        // to display and error message
-        //    }
+        public void NewOrder(Order order)
+        {
+            orders.Add(order);
+        }
 
-        //}
-
+        public void AddHolding(PortfolioStockModel portfolioStockModel) 
+        {
+            holdings.Add(portfolioStockModel);
+        }
     }
 }

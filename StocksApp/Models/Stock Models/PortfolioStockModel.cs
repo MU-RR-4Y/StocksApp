@@ -22,5 +22,17 @@ namespace StocksApp.Models
         public double currentValue { get; set; } = 0;
         public double currentPerformance { get; set; } = 0;
 
+
+    public void CalculateShares(Order order)
+    {
+        if (order.direction == "buy")
+        {
+            numberofShares += order.numberOfShares;
+        } 
+        else if (order.direction == "sell")
+        {
+            numberofShares -= order.numberOfShares;
+        }
+    }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StocksApp.Models.FX_models;
+using StocksApp.Pages.Users;
+using System.Security.Cryptography.X509Certificates;
 
 namespace StocksApp.Models
 {
@@ -18,11 +20,10 @@ namespace StocksApp.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
             modelBuilder.Entity<Portfolio>()
-                .HasData(
-                new Portfolio { Id = 1, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 50000 },
-                new Portfolio { Id = 2, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 76000 },
+            .HasData(
+            new Portfolio { Id = 1, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 50000 },
+            new Portfolio { Id = 2, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 76000 },
                 new Portfolio { Id = 3, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 25000 });
 
             modelBuilder.Entity<User>()
@@ -51,7 +52,10 @@ namespace StocksApp.Models
                 new Order { Id = 3, shortName = "Netflix, Inc.", direction = "buy", numberOfShares = 450, symbol = "NFLX", currency = "USD", price = 380.68, fxRate = 0.801, gbpCashValue = 137216.106, portfolioId = 3 },
                 new Order { Id = 4, shortName = "Pepsico, Inc.", direction = "buy", numberOfShares = 1300, symbol = "PEP", currency = "USD", price = 159.16, fxRate = 0.801, gbpCashValue = 165733.308, portfolioId = 2 }
                 );
-            modelBuilder.Entity<PortfolioStockModel>();
+            modelBuilder.Entity<PortfolioStockModel>().HasData(
+                new PortfolioStockModel { Id = 1, portfolioId = 1, shortName = "Apple Inc", symbol = "AAPL", numberofShares = 0, currency = "USD", currentValue = 0, currentPerformance = 0  }
+                
+                );
             modelBuilder.Entity<FxRates>()
                 .HasData(
                     new FxRates { Id = 1, GBPtoUSD = 1, USDtoGBP = 1, timestamp =1 }

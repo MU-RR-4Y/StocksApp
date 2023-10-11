@@ -17,12 +17,33 @@
        
         <MudText>Cash Held : @user.userPortfolio.cash </MudText>
         <MudText>Contract notes</MudText>
-        
-
 
     </MudTabPanel>
     <MudTabPanel Text="Activity">
-        <MudText>Content Two</MudText>
+        <MudTable Items="user.userPortfolio.orders">
+            <HeaderContent>
+                <MudTh>Order Type</MudTh>
+                <MudTh>Stock</MudTh>
+                <MudTh>Symbol</MudTh>
+                <MudTh>Shares</MudTh>
+                <MudTh>Price</MudTh>
+                <MudTh>Currency</MudTh>
+                <MudTh>GBP/USD Fx rate</MudTh>
+                <MudTh>GBP Value</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Order Type">@context.direction</MudTd>
+                <MudTd DataLabel="Stock">@context.shortName</MudTd>
+                <MudTd DataLabel="Symbol">@context.symbol</MudTd>
+                <MudTd DataLabel="Shares">@context.numberOfShares</MudTd>
+                <MudTd DataLabel="Price">@context.price</MudTd>
+                <MudTd DataLabel="Currency">@context.currency</MudTd>
+                <MudTd DataLabel="GBP/USD Fx rate">@context.fxRate</MudTd>
+                <MudTd DataLabel="GBP Value">@context.gbpCashValue</MudTd>
+            </RowTemplate>
+        </MudTable>
+            <MudButton OnClick="AddOrder" Variant="Variant.Filled">AddOrder</MudButton>
+        
     </MudTabPanel>
     <MudTabPanel Text="Admin">
         <MudText>Content Three</MudText>
@@ -35,7 +56,7 @@
     [Parameter]
     public int UserId { get; set; }
     private User user { get; set; }
-    
+
 
 
     // TODO: setup layout for portfolio view
@@ -50,9 +71,19 @@
         user = ctx.Users
             .Include(u => u.userPortfolio)
             .FirstOrDefault(u => u.Id == UserId);
-       
+
     }
 
+    protected void AddOrder()
+    {
+        Order order = new Order { Id = 5, shortName = "Apple Inc.", direction = "buy", numberOfShares = 2000, symbol = "AAPL", currency = "USD", price = 176.36, fxRate = 0.801, gbpCashValue = 282528.72, portfolioId = 1 };
+        user.userPortfolio.NewOrder(order);
+        PortfolioStockModel PSM = new PortfolioStockModel();
+        PSM.CalculateShares(order);
+
+
+
+    }
 
     private void NavigateToUsersPage()
     {
