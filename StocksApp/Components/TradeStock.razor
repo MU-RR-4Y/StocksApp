@@ -3,22 +3,31 @@
 <MudPopover Open="@visibility" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.CenterCenter" Style="padding:16px; margin: 16px;">
     <h1 style="text-decoration-line: underline;">@($"{_direction}") @stock.shortName</h1>
         <div class="d-flex flex-column" >
-            <MudText>Available Cash :  £@portfolio.cash</MudText>
-            <MudText>Price : @stock.regularMarketPrice</MudText>
-            <MudText>USD Cost :@($"${(numberofShares * @stock.regularMarketPrice):N2}")</MudText>
-            <MudText>FX rate : @_USDtoGBP</MudText>
-            <MudText>GBP Cost : @($"{((numberofShares * @stock.regularMarketPrice))*_USDtoGBP:C2}") </MudText>
-           <div class="d-flex  flex-row justify-center">
-                <MudNumericField @bind-Value="numberofShares" T="int"></MudNumericField>
                 @if(_direction == "Buy")
                 {
-                    <MudButton Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Success">@($"{_direction}") Stock</MudButton>
+                    <MudText>Available Cash :  £@portfolio.cash</MudText>
+                    <MudText>Price : @stock.regularMarketPrice</MudText>
+                    <MudText>USD Cost :@($"${(numberofShares * @stock.regularMarketPrice):N2}")</MudText>
+                    <MudText>FX rate : @_USDtoGBP</MudText>
+                    <MudText>GBP Cost : @($"{((numberofShares * @stock.regularMarketPrice))*_USDtoGBP:C2}")</MudText>
+                   <div class="d-flex  flex-row justify-center">
+                        <MudNumericField @bind-Value="numberofShares" T="int"></MudNumericField>
+                        <MudButton Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Success">@($"{_direction}") Stock</MudButton>
+                    </div>
                 }
                 else
                 {
-                    <MudButton Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Error">@($"{_direction}") Stock</MudButton>
+                    
+                    <MudText>Price : @stock.regularMarketPrice</MudText>
+                    <MudText>USD Value :@($"${(numberofShares * @stock.regularMarketPrice):N2}")</MudText>
+                    <MudText>FX rate : @_USDtoGBP</MudText>
+                    <MudText>GBP Value : @($"{((numberofShares * @stock.regularMarketPrice)) * _USDtoGBP:C2}") </MudText>
+                    <div class="d-flex  flex-row justify-center">
+                        <MudNumericField @bind-Value="numberofShares" T="int"></MudNumericField>
+                        <MudButton Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Error">@($"{_direction}") Stock</MudButton>
+                    </div>
+
                 }
-            </div>
         </div>
 </MudPopover>
 
@@ -34,15 +43,15 @@
     [Parameter]
     public Func<Stock, Portfolio, string, Task>? tradeStock { get; set; }
 
-    public double _GBPtoUSD { get; set; }
+
     public double _USDtoGBP { get; set; }
     public int numberofShares { get; set; }
+    public bool canAfford { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
         using var ctx = context.CreateDbContext();
         var fxrates = ctx.FxRates.FirstOrDefault();
-        _GBPtoUSD = fxrates.GBPtoUSD;
         _USDtoGBP = fxrates.USDtoGBP;
     }
 

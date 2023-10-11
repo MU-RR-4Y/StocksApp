@@ -74,8 +74,8 @@
             </MudTd>
                 <MudTd DataLabel=">Available Cash">@context.userPortfolio.cash</MudTd>
                 <MudTd DataLabel="Actions" class="d-flex justify-space-evenly">
-                    <MudButton  Variant="Variant.Filled" Size="Size.Small" Color="Color.Success">Increase Position</MudButton>
-                    <MudButton  Variant="Variant.Filled" Color="Color.Error" Size="Size.Small">Sell Stock</MudButton>
+                <MudButton OnClick="@(()=>BuyFromHoldingsView(context.userPortfolio))" Variant="Variant.Filled" Size="Size.Small" Color="Color.Success">Increase Position</MudButton>
+                <MudButton OnClick="@(()=>SellFromHoldingsView(context.userPortfolio))" Variant="Variant.Filled" Color="Color.Error" Size="Size.Small">Sell Stock</MudButton>
                 </MudTd>
 
             </RowTemplate>
@@ -88,7 +88,7 @@
 @code {
     // TODO: Stock view to be add, look at bringing in charts? JSinterop or Mudblazor charts
     // TODO: add Buy/Sell buttons/functionality
-
+    // TODO: add validation on portfolio select for initial buy submit
     // TODO: Look into generating a basic orderconfirmation doc. Where will this be stored?
 
     [Parameter]
@@ -179,9 +179,18 @@
         isOpen = true;
     }
 
-    public async void Sell()
+    public async void BuyFromHoldingsView(Portfolio portfolio)
+    {
+        tradeDirection = "Buy";
+        selectedPortfolio = portfolio;
+        isOpen = true;
+
+    }
+
+    public async void SellFromHoldingsView(Portfolio portfolio)
     {
         tradeDirection = "Sell";
+        selectedPortfolio = portfolio;
         isOpen = true;
     }
 
