@@ -50,25 +50,10 @@ else
 
     protected async override Task OnInitializedAsync()
     {
-        var client = _clientFactory.CreateClient();
-        var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri($"https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols={stockIds.SymbolString}"),
-                Headers =
-                {
-                    { "X-RapidAPI-Key", "22cec8c348mshb9ff4f2d3e09e36p13b6f6jsnb90a0998a29b" },
-                    { "X-RapidAPI-Host", "apidojo-yahoo-finance-v1.p.rapidapi.com" }
-                },
-            };
-        using (var response = await client.SendAsync(request))
-        {
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadFromJsonAsync<ApiStockModel>();
-
-            stocks = content.quoteResponse.result;
-        }
-
+        using var client = _clientFactory.CreateClient("yahoo");
+        var content = await client.GetFromJsonAsync<ApiStockModel>($"market/v2/get-quotes?region=US&symbols={stockIds.SymbolString}");
+        // TODO: Need to add traycatch for this request
+        stocks = content.quoteResponse.result;
         AddStockInfo(stocks);
 
     }

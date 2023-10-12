@@ -15,7 +15,19 @@ StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configurat
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
-builder.Services.AddHttpClient();
+var yahooApi = builder.Configuration["Stock_API_Key"];
+
+builder.Services.AddHttpClient("yahoo", request => 
+{
+    request.BaseAddress = new Uri("https://apidojo-yahoo-finance-v1.p.rapidapi.com/");
+    request.DefaultRequestHeaders.Add("X-RapidAPI-Key", yahooApi);
+    request.DefaultRequestHeaders.Add("X-RapidAPI-Host", "apidojo-yahoo-finance-v1.p.rapidapi.com");
+});
+
+builder.Services.AddHttpClient("fx", request =>
+{
+    request.BaseAddress = new Uri($"https://fxmarketapi.com");
+});
 builder.Services.AddDbContextFactory<StockAppDbContext>( options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("StockAppDb")));
 

@@ -2,6 +2,7 @@
 @using StocksApp.Models.FX_models;
 @inject IHttpClientFactory _clientFactory
 @inject IDbContextFactory<StockAppDbContext> context
+@inject IConfiguration _config
 
 <PageTitle>Index</PageTitle>
 
@@ -9,36 +10,44 @@
 <MudText Class="mb-8">Welcome to your new app, powered by MudBlazor!</MudText>
 <MudAlert Severity="Severity.Normal">You can find documentation and examples on our website here: <MudLink Href="https://mudblazor.com" Typo="Typo.body2" Color="Color.Inherit"><b>www.mudblazor.com</b></MudLink></MudAlert>
 
+@if(errorString is not null)
+{
+    <MudText>**** ERROR ****</MudText>
+    <MudText>@errorString</MudText>
+}
 
 @code{
 
     public double _GBPtoUSD { get; set; }
     public double _USDtoGBP { get; set; }
     public int _timestamp { get; set; }
+    string errorString { get; set; } = null;
 
     protected async override Task OnInitializedAsync()
     {
         GetFxRates();
-       
+
     }
 
     private async Task GetFxRates()
     {
-        var client = _clientFactory.CreateClient();
-        var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri("https://fxmarketapi.com/apilive?api_key=YaqTzlUy71InhGNtjBRR&currency=GBPUSD,USDGBP"),
-            };
-        using (var response = await client.SendAsync(request))
+        using var client = _clientFactory.CreateClient("fx");
+        try
         {
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadFromJsonAsync<ApiFxRateModel>();
-
+            var fxApi = _config["FX_Api_Key"];
+            var content = await client.GetFromJsonAsync<ApiFxRateModel>($"/apilive?api_key={fxApi}&currency=GBPUSD,USDGBP");
             _GBPtoUSD = content.price.GBPUSD;
             _USDtoGBP = content.price.USDGBP;
             _timestamp = content.timestamp;
+
         }
+        catch (Exception ex )
+        {
+
+            errorString = $"There was an error getting the FX rates: {ex.Message}";
+            Console.WriteLine(errorString);
+        }
+
 
         SaveFxRates();
     }
