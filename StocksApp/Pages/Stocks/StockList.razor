@@ -67,38 +67,12 @@ else
 
             if (databaseStock is not null)
             {
-                databaseStock.regularMarketPreviousClose = stock.regularMarketPreviousClose;
-                databaseStock.regularMarketOpen = stock.regularMarketOpen;
-                databaseStock.regularMarketPrice = stock.regularMarketPrice;
-                databaseStock.regularMarketChange = stock.regularMarketChange;
-                databaseStock.regularMarketChangePercent = stock.regularMarketChangePercent;
-                databaseStock.regularMarketTime = stock.regularMarketTime;
-                databaseStock.regularMarketDayLow = stock.regularMarketDayLow;
-                databaseStock.regularMarketDayHigh = stock.regularMarketDayHigh;
-
-                ctx.Stocks.Update(databaseStock);
-
+                stock.Id = databaseStock.Id;
+                ctx.Stocks.Update(stock);
             }
             else
             {
-
-                Stock newStock = new Stock
-                    {
-                        shortName = stock.shortName,
-                        symbol = stock.symbol,
-                        exchange = stock.exchange,
-                        currency = stock.currency,
-                        regularMarketPreviousClose = stock.regularMarketPreviousClose,
-                        regularMarketOpen = stock.regularMarketOpen,
-                        regularMarketPrice = stock.regularMarketPrice,
-                        regularMarketChange = stock.regularMarketChange,
-                        regularMarketChangePercent = stock.regularMarketChangePercent,
-                        regularMarketTime = stock.regularMarketTime,
-                        regularMarketDayLow = stock.regularMarketDayLow,
-                        regularMarketDayHigh = stock.regularMarketDayHigh
-                    };
-
-                ctx.Stocks.Add(newStock);
+                ctx.Stocks.Add(stock);
             }
             await ctx.SaveChangesAsync();
         }

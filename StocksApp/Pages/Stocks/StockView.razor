@@ -137,8 +137,8 @@
                     .Select(u => u))
                     .ToArray();
 
-        PortfolioStockModel PSM = new PortfolioStockModel { Id = 1, portfolioId = 1, shortName = "Apple Inc", symbol = "AAPL", numberofShares = 2000, currency = "USD", currentValue = 0, currentPerformance = 0 };
-        stockHolders[0].userPortfolio.AddHolding(PSM);
+        // PortfolioStockModel PSM = new PortfolioStockModel { Id = 1, portfolioId = 1, shortName = "Apple Inc", symbol = "AAPL", numberofShares = 2000, currency = "USD", currentValue = 0, currentPerformance = 0 };
+        // stockHolders[0].userPortfolio.AddHolding(PSM);
 
     }
 
@@ -161,9 +161,9 @@
                 gbpCashValue = (0 * stock.regularMarketPrice) * _USDtoGBP
             };
         // Add order to portfolio orders list
-        portfolio.NewOrder(order);
+        // portfolio.NewOrder(order);
         // update holdings - reviews updated order list anbd updates holdings appropiately
-        portfolio.UpdateHoldings();
+        // portfolio.UpdateHoldings();
 
         //update portfolio with new holdings list
         ctx.Portfolio.Update(portfolio);

@@ -70,18 +70,40 @@
         using var ctx = context.CreateDbContext();
         user = ctx.Users
             .Include(u => u.userPortfolio)
+            .Include(u =>u.userPortfolio.holdings)
+            .Include(u => u.userPortfolio.orders)
             .FirstOrDefault(u => u.Id == UserId);
 
     }
 
-    protected void AddOrder()
+    protected async Task AddOrder()
     {
-        Order order = new Order { Id = 5, shortName = "Apple Inc.", direction = "buy", numberOfShares = 2000, symbol = "AAPL", currency = "USD", price = 176.36, fxRate = 0.801, gbpCashValue = 282528.72, portfolioId = 1 };
-        user.userPortfolio.NewOrder(order);
-        PortfolioStockModel PSM = new PortfolioStockModel();
-        PSM.CalculateShares(order);
+        using var ctx = context.CreateDbContext();
+        double fxRate = ctx.FxRates.FirstOrDefault().USDtoGBP;
 
+        Stock stock = new Stock { Id = 9, shortName = "Apple Inc.", symbol = "AAPL", currency = "USD", regularMarketPrice = 176.36};
+        Order newOrder = user.userPortfolio.CreateNewOrder(stock, "sell", 10000, fxRate);
+        ctx.Orders.Add(newOrder);
+        await ctx.SaveChangesAsync();
 
+        user.userPortfolio.UpdateHoldings(newOrder);
+
+        foreach (var holding in user.userPortfolio.holdings)
+        {
+            var databaseHolding = ctx.PortfolioStockModel.FirstOrDefault(h => h.symbol == holding.symbol);
+            ctx.Entry<PortfolioStockModel>(databaseHolding).State = EntityState.Detached;
+            if (databaseHolding is not null)
+            {
+                holding.Id = databaseHolding.Id; 
+                ctx.PortfolioStockModel.Update(holding);
+                
+            }
+            else
+            {
+                ctx.PortfolioStockModel.Add(holding);
+            }
+            await ctx.SaveChangesAsync();
+        }
 
     }
 

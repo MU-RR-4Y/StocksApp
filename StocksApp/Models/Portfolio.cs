@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 using StocksApp.Pages.Users;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,7 +19,6 @@ namespace StocksApp.Models
         public double currentPerformance { get; set; } = 0;
         public double cash { get; set; } = 0;
 
-        [Inject] IDbContextFactory<StockAppDbContext> context {  get; set; }
 
         public void CreditCash(double amount)
         {
@@ -30,14 +30,23 @@ namespace StocksApp.Models
             cash -= amount;
         }
 
-        public void NewOrder(Order order)
+        // Create a new order on portfolio. Save to DB
+        public Order CreateNewOrder(Stock stock, string _direction, int _numberOfShares, double fxRate)
         {
+            Order order = new Order
+            {
+                shortName = stock.shortName,
+                direction = _direction,
+                numberOfShares = _numberOfShares,
+                symbol = stock.symbol,
+                currency = stock.currency,
+                price = stock.regularMarketPrice,
+                fxRate = fxRate,
+                portfolioId = Id,
+                gbpCashValue = (_numberOfShares * stock.regularMarketPrice) * fxRate
+            };
             orders.Add(order);
-        }
-
-        public void AddHolding(PortfolioStockModel portfolioStockModel) 
-        {
-            holdings.Add(portfolioStockModel);
+            return order;
         }
 
         public PortfolioStockModel FindHolding(string symbol)
@@ -52,29 +61,30 @@ namespace StocksApp.Models
             return null;
         }
 
-        public async void UpdateHoldings()
+        public void UpdateHoldings(Order _order)
         {
-            //loop through each order on portfolio
-            foreach (var order in orders)
-            {
-                var orderStock = order.symbol;
+                var orderStock = _order.symbol;
                 //check if stock already has a holding
                 var holding = FindHolding(orderStock);
+                if (holding != null) { holding.numberofShares = 0; }
 
+             //loop through each order on portfolio
+            foreach (var order in orders)
+            {
                 // update existing holdings in DB
                 PortfolioStockModel updatedPSM = holding;
                 if (updatedPSM is not null)
                 {
+                    int index = holdings.IndexOf(updatedPSM);
                     if(order.direction == "buy")
                     {
-                        updatedPSM.numberofShares += order.numberOfShares;
+                        holdings[index].numberofShares += order.numberOfShares;
+
                     }else
                     {
-                        updatedPSM.numberofShares -= order.numberOfShares;
+                        holdings[index].numberofShares -= order.numberOfShares;
                     };
-                    using var ctx = context.CreateDbContext();
-                    ctx.PortfolioStockModel.Update(updatedPSM);
-                    await ctx.SaveChangesAsync();
+
                 }
                 else
                 {
@@ -88,14 +98,12 @@ namespace StocksApp.Models
                         currency = order.currency,
                         averagePrice = order.price
                     };
-                    using var ctx = context.CreateDbContext();
-                    ctx.PortfolioStockModel.Add(newPSM);
-                    await ctx.SaveChangesAsync();
+
+                    holdings.Add(newPSM);
                 }
 
-
-
             }
+
 
         }
 
