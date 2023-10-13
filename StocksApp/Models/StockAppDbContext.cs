@@ -24,7 +24,7 @@ namespace StocksApp.Models
             .HasData(
             new Portfolio { Id = 1, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 50000 },
             new Portfolio { Id = 2, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 76000 },
-                new Portfolio { Id = 3, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 25000 });
+            new Portfolio { Id = 3, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 25000 });
 
             modelBuilder.Entity<User>()
                 .HasData(
@@ -53,7 +53,7 @@ namespace StocksApp.Models
                 new Order { Id = 4, shortName = "Pepsico, Inc.", direction = "buy", numberOfShares = 1300, symbol = "PEP", currency = "USD", price = 159.16, fxRate = 0.801, gbpCashValue = 165733.308, portfolioId = 2 }
                 );
             modelBuilder.Entity<PortfolioStockModel>().HasData(
-                new PortfolioStockModel { Id = 1, portfolioId = 1, shortName = "Apple Inc", symbol = "AAPL", numberofShares = 0, currency = "USD", currentValue = 0, currentPerformance = 0  }
+                new PortfolioStockModel { Id = 1, portfolioId = 1, shortName = "Apple Inc", symbol = "AAPL", numberofShares = 0, currency = "USD", currentValue = 0, currentPerformance = 0, currentPrice = 0 }
                 
                 );
             modelBuilder.Entity<FxRates>()

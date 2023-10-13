@@ -30,6 +30,8 @@ namespace StocksApp.Models
             cash -= amount;
         }
 
+
+
         // Create a new order on portfolio. Save to DB
         public Order CreateNewOrder(Stock stock, string _direction, int _numberOfShares, double fxRate)
         {
@@ -61,7 +63,7 @@ namespace StocksApp.Models
             return null;
         }
 
-        public void UpdateHoldings(Order _order)
+        public void UpdateHoldings(Order _order, double fxRate)
         {
                 var orderStock = _order.symbol;
                 //check if stock already has a holding
@@ -79,10 +81,12 @@ namespace StocksApp.Models
                     if(order.direction == "buy")
                     {
                         holdings[index].numberofShares += order.numberOfShares;
-
-                    }else
+                        holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
+                    }
+                    else
                     {
                         holdings[index].numberofShares -= order.numberOfShares;
+                        holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
                     };
 
                 }
@@ -96,9 +100,9 @@ namespace StocksApp.Models
                         symbol = order.symbol,
                         numberofShares = order.numberOfShares,
                         currency = order.currency,
-                        averagePrice = order.price
+                        currentPrice = order.price
                     };
-
+                    newPSM.CalculateHoldingValueVsPerformance(orders, fxRate);
                     holdings.Add(newPSM);
                 }
 
@@ -106,6 +110,15 @@ namespace StocksApp.Models
 
 
         }
+
+        //public void CalculateValuePerformance()
+        //{
+
+        //    foreach (var holding in holdings)
+        //    {
+                
+        //    }
+        //}
 
     }
 }
