@@ -6,18 +6,45 @@
 
 <h1>@user.FirstName @user.LastName Portfolio</h1>
 
+@* OVERVIIEW TAB - Show Portfolio performance summary and list of holdings *@
 
 <MudTabs Outlined="true" Position="@Position.Top" Rounded="true" Border="true"
          ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
     <MudTabPanel Text="Overview">
-        <MudText>Portfolio Value  : @user.userPortfolio.currentValue  </MudText>
-
-        <MudText>Current Holdings</MudText>
-
-       
+        <MudText>Portfolio BookValue  : @($"{user.userPortfolio.bookValue:C2}")  </MudText>
+        <MudText>Portfolio Value  : @($"{user.userPortfolio.currentValue:C2}")  </MudText>
+        <MudText>Portfolio Performance  : @($"{user.userPortfolio.currentPerformance *100 :N2}%")  </MudText>
         <MudText>Cash Held : @user.userPortfolio.cash </MudText>
         <MudText>Contract notes</MudText>
 
+        <br/>
+
+        <h3>Current Holdings</h3>
+        <MudTable Items="user.userPortfolio.holdings">
+            <HeaderContent>
+                <MudTh>Stock</MudTh>
+                <MudTh>Symbol</MudTh>
+                <MudTh>Shares</MudTh>
+                <MudTh>Performance</MudTh>
+                <MudTh>GBP Value</MudTh>
+                <MudTh>Trade</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Stock">@context.shortName</MudTd>
+                <MudTd DataLabel="Symbol">@context.symbol</MudTd>
+                <MudTd DataLabel="Shares">@context.numberofShares</MudTd>
+                <MudTd DataLabel="Performance">@($"{context.currentPerformance * 100:N2}%")</MudTd>
+                    <MudTd DataLabel="GBP Value">@($"{context.currentValue:C2}")</MudTd> 
+                    <MudTd DataLabel="Trade">
+                        <MudButton OnClick="@(()=>NavigateToStockPage(context.symbol))" Variant="Variant.Filled">
+                            Stock Page
+                        </MudButton>
+                    </MudTd>
+            </RowTemplate>
+        </MudTable>
+
+@* ACTIVITY TAB - Show list of Orders on portfolio    *@
+        
     </MudTabPanel>
     <MudTabPanel Text="Activity">
         <MudTable Items="user.userPortfolio.orders">
@@ -30,6 +57,7 @@
                 <MudTh>Currency</MudTh>
                 <MudTh>GBP/USD Fx rate</MudTh>
                 <MudTh>GBP Value</MudTh>
+               
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Order Type">@context.direction</MudTd>
@@ -40,10 +68,13 @@
                 <MudTd DataLabel="Currency">@context.currency</MudTd>
                 <MudTd DataLabel="GBP/USD Fx rate">@context.fxRate</MudTd>
                 <MudTd DataLabel="GBP Value">@context.gbpCashValue</MudTd>
+               
             </RowTemplate>
         </MudTable>
             <MudButton OnClick="AddOrder" Variant="Variant.Filled">AddOrder</MudButton>
-        
+    
+@* ADMIN TAB - TBC, look at adding contract notes *@
+
     </MudTabPanel>
     <MudTabPanel Text="Admin">
         <MudText>Content Three</MudText>
@@ -52,10 +83,11 @@
 
 <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="NavigateToUsersPage">Back to Users</MudButton>
 
-@code {
+    @code {
     [Parameter]
     public int UserId { get; set; }
     private User user { get; set; }
+    private double fxRate { get; set;}
 
 
 
@@ -73,7 +105,8 @@
             .Include(u =>u.userPortfolio.holdings)
             .Include(u => u.userPortfolio.orders)
             .FirstOrDefault(u => u.Id == UserId);
-
+        fxRate = ctx.FxRates.FirstOrDefault().USDtoGBP;
+        user.userPortfolio.CalculatePortfolioValueVsPerformance(fxRate);
     }
 
     protected async Task AddOrder()
@@ -81,13 +114,16 @@
         using var ctx = context.CreateDbContext();
         double fxRate = ctx.FxRates.FirstOrDefault().USDtoGBP;
 
+        // stock, direction and fxRate to be passed as parameters into 'AddOrder' method.
         Stock stock = new Stock { Id = 9, shortName = "Apple Inc.", symbol = "AAPL", currency = "USD", regularMarketPrice = 185.36};
         Order newOrder = user.userPortfolio.CreateNewOrder(stock, "sell", 2000, fxRate);
         ctx.Orders.Add(newOrder);
         await ctx.SaveChangesAsync();
 
+        // update client side holdings
         user.userPortfolio.UpdateHoldings(newOrder, fxRate);
 
+        // update holdings in database
         foreach (var holding in user.userPortfolio.holdings)
         {
             var databaseHolding = ctx.PortfolioStockModel.FirstOrDefault(h => h.symbol == holding.symbol);
@@ -96,7 +132,6 @@
                 ctx.Entry<PortfolioStockModel>(databaseHolding).State = EntityState.Detached;
                 holding.Id = databaseHolding.Id; 
                 ctx.PortfolioStockModel.Update(holding);
-                
             }
             else
             {
@@ -111,5 +146,13 @@
     {
         NavManager.NavigateTo("/users");
     }
+
+    private async Task NavigateToStockPage(string symbol)
+    {
+        using var ctx = context.CreateDbContext();
+        int id = ctx.Stocks.FirstOrDefault(s => s.symbol == symbol).Id;
+        NavManager.NavigateTo($"/stocklist/{id}");
+    }
+
 
 }

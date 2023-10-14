@@ -55,7 +55,15 @@ namespace StocksApp.Models
 
             //Average USD price to compare against current visibil USD price of stock
             averagePrice = (orderTotal / numberofShares) / fxRate;
-            currentPerformance = (currentValue / bookValue) - 1;
+
+            if(bookValue == 0 || currentValue == 0)
+            {
+                currentPerformance = 0;
+            }
+            else
+            {
+                currentPerformance = (currentValue / bookValue) - 1;
+            }
 
         }
 

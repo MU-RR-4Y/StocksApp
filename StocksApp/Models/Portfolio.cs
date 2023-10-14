@@ -88,7 +88,6 @@ namespace StocksApp.Models
                         holdings[index].numberofShares -= order.numberOfShares;
                         holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
                     };
-
                 }
                 else
                 {
@@ -111,14 +110,25 @@ namespace StocksApp.Models
 
         }
 
-        //public void CalculateValuePerformance()
-        //{
+        public void CalculatePortfolioValueVsPerformance(double fxRate)
+        {
+            foreach (PortfolioStockModel holding in holdings)
+            {
+                //Values in GBP
+                bookValue += holding.bookValue * fxRate;
+                currentValue += holding.currentValue * fxRate;
+            }
+            if (bookValue == 0 || currentValue == 0)
+            {
+                currentPerformance = 0;
+            }
+            else
+            {
+                currentPerformance = (currentValue / bookValue) - 1;
+            }
 
-        //    foreach (var holding in holdings)
-        //    {
-                
-        //    }
-        //}
+
+        }
 
     }
 }
