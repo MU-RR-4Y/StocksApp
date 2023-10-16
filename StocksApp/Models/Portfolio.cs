@@ -11,9 +11,11 @@ namespace StocksApp.Models
         
         public int Id {  get; set; }
         [Required]
-        public List<PortfolioStockModel> holdings { get; set; } = new List<PortfolioStockModel>();
+        public List<Holdings> holdings { get; set; } = new List<Holdings>();
         [Required]
         public List<Order> orders { get; set; } = new List<Order>();
+        [Required]
+        public List<BVOrder> bookValueOrders { get; set; } = new List<BVOrder>();
         public double bookValue { get; set; } = 0;
         public double currentValue { get; set; } = 0;
         public double currentPerformance { get; set; } = 0;
@@ -51,7 +53,7 @@ namespace StocksApp.Models
             return order;
         }
 
-        public PortfolioStockModel FindHolding(string symbol)
+        public Holdings FindHolding(string symbol)
         {
             foreach (var holding in holdings)
             {
@@ -74,25 +76,25 @@ namespace StocksApp.Models
             foreach (var order in orders)
             {
                 // update existing holdings in DB
-                PortfolioStockModel updatedPSM = holding;
-                if (updatedPSM is not null)
+                Holdings updatedHolding = holding;
+                if (updatedHolding is not null)
                 {
-                    int index = holdings.IndexOf(updatedPSM);
-                    if(order.direction == "buy")
+                    int index = holdings.IndexOf(updatedHolding);
+                    if(order.direction == "buy" || order.direction == "Buy" )
                     {
                         holdings[index].numberofShares += order.numberOfShares;
-                        holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
+                        //holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
                     }
                     else
                     {
                         holdings[index].numberofShares -= order.numberOfShares;
-                        holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
+                        //holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
                     };
                 }
                 else
                 {
                     // Add new holding in DB if required
-                    PortfolioStockModel newPSM = new PortfolioStockModel()
+                    Holdings newHolding = new Holdings()
                     {
                         portfolioId = Id,
                         shortName = order.shortName,
@@ -101,18 +103,17 @@ namespace StocksApp.Models
                         currency = order.currency,
                         currentPrice = order.price
                     };
-                    newPSM.CalculateHoldingValueVsPerformance(orders, fxRate);
-                    holdings.Add(newPSM);
+                    //newPSM.CalculateHoldingValueVsPerformance(orders, fxRate);
+                    holdings.Add(newHolding);
                 }
 
             }
-
 
         }
 
         public void CalculatePortfolioValueVsPerformance(double fxRate)
         {
-            foreach (PortfolioStockModel holding in holdings)
+            foreach (Holdings holding in holdings)
             {
                 //Values in GBP
                 bookValue += holding.bookValue * fxRate;

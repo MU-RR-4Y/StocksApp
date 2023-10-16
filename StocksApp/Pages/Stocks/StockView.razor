@@ -50,7 +50,7 @@
     </div>
 
 
-    <TradeStock visibility="@isOpen" stock="@stock" _direction="@tradeDirection" tradeStock="TradeStock" portfolio="@selectedPortfolio" />
+    <TradeStock visibility="@isOpen" stock="@stock" _direction="@tradeDirection" addOrder="AddOrder" portfolio="@selectedPortfolio" />
 }
 
 <br/>
@@ -67,12 +67,26 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Name"> @context.FirstName @context.LastName</MudTd>
-            <MudTd DataLabel=">Number of Shares Held">
-                @context.userPortfolio.holdings[0].numberofShares
-                @* need to look at a for loop for this *@
+            @{
+                int NumOfShares =0 ;
+                double CashValue = 0;
 
-            </MudTd>
-                <MudTd DataLabel=">Available Cash">@context.userPortfolio.cash</MudTd>
+                foreach (var holding in context.userPortfolio.holdings)
+                {
+                    if( holding.symbol == stock.symbol)
+                    {
+                        NumOfShares = holding.numberofShares;
+                        CashValue = holding.currentValue;
+                    }
+                }
+
+            }
+
+
+                <MudTd DataLabel=">Number of Shares Held">@NumOfShares</MudTd>
+            <MudTd DataLabel=">Cash Value">@($"{CashValue:C2}")</MudTd>
+
+
                 <MudTd DataLabel="Actions" class="d-flex justify-space-evenly">
                 <MudButton OnClick="@(()=>BuyFromHoldingsView(context.userPortfolio))" Variant="Variant.Filled" Size="Size.Small" Color="Color.Success">Increase Position</MudButton>
                 <MudButton OnClick="@(()=>SellFromHoldingsView(context.userPortfolio))" Variant="Variant.Filled" Color="Color.Error" Size="Size.Small">Sell Stock</MudButton>
@@ -85,7 +99,7 @@
 
 <MudButton Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small" OnClick="NavigateToUsersPage">Back to Stocks</MudButton>
 
-@code {
+    @code {
     // TODO: Stock view to be add, look at bringing in charts? JSinterop or Mudblazor charts
     // TODO: add Buy/Sell buttons/functionality
     // TODO: add validation on portfolio select for initial buy submit
@@ -107,15 +121,12 @@
 
 
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
-
-
         using var ctx = context.CreateDbContext();
 
         //Get FX rates
         var fxrates = ctx.FxRates.FirstOrDefault();
-        _GBPtoUSD = fxrates.GBPtoUSD;
         _USDtoGBP = fxrates.USDtoGBP;
 
 
@@ -123,12 +134,17 @@
         stock = ctx.Stocks.FirstOrDefault(s => s.Id == Id);
 
         //Get users and portfolios to create array of users who hold this stock in their portfolio
-        var users = await ctx.Users.Include(u => u.userPortfolio).ToArrayAsync();
+        var users = await ctx.Users
+        .Include(u => u.userPortfolio)
+        .ThenInclude(p => p.holdings) 
+        .Include(u =>u.userPortfolio)
+        .ThenInclude(p => p.orders)  
+        .ToArrayAsync();
         userList = users;
 
-        var portfolioIds = await ctx.PortfolioStockModel
+        var portfolioIds = await ctx.Holdings
                             .Where(p => p.symbol == stock.symbol)
-                            .Select(p => p.Id)
+                            .Select(p => p.portfolioId)
                             .ToArrayAsync();
 
         stockHolders = portfolioIds
@@ -137,40 +153,54 @@
                     .Select(u => u))
                     .ToArray();
 
-        // PortfolioStockModel PSM = new PortfolioStockModel { Id = 1, portfolioId = 1, shortName = "Apple Inc", symbol = "AAPL", numberofShares = 2000, currency = "USD", currentValue = 0, currentPerformance = 0 };
-        // stockHolders[0].userPortfolio.AddHolding(PSM);
-
     }
 
 
-    //CREATE AN ORDER BASED ON STOCK,PORTOLIO AND DIRECTION - UPDATE HOLDINGS AND THEN PORTFOLIO
-    public async Task TradeStock(Stock stock, Portfolio portfolio, string _direction)
+
+
+    protected async Task AddOrder(Stock stock, Portfolio portfolio, string _direction, int numberOfShares, double fxRate)
     {
-        var ctx = context.CreateDbContext();
+        isOpen = false;
+        using var ctx = context.CreateDbContext();
 
-        // Create new order
-        Order order = new Order
+        //Create new order
+        Order newOrder = portfolio.CreateNewOrder(stock, _direction, numberOfShares, fxRate);
+        ctx.Orders.Add(newOrder);
+        await ctx.SaveChangesAsync();
+
+
+
+        // update client side holdings
+
+        portfolio.UpdateHoldings(newOrder, fxRate);
+
+        // update holdings in database
+        foreach (var holding in portfolio.holdings)
+        {
+            var databaseHolding = ctx.Holdings.FirstOrDefault(h => h.symbol == holding.symbol);
+            if (databaseHolding is not null)
             {
-                shortName = stock.shortName,
-                direction = _direction,
-                numberOfShares = 1000,
-                symbol = stock.symbol,
-                currency = stock.currency,
-                price = stock.regularMarketPrice,
-                fxRate = _GBPtoUSD,
-                gbpCashValue = (0 * stock.regularMarketPrice) * _USDtoGBP
-            };
-        // Add order to portfolio orders list
-        // portfolio.NewOrder(order);
-        // update holdings - reviews updated order list anbd updates holdings appropiately
-        // portfolio.UpdateHoldings();
+                ctx.Entry<Holdings>(databaseHolding).State = EntityState.Detached;
+                holding.Id = databaseHolding.Id;
+                ctx.Holdings.Update(holding);
+            }
+            else
+            {
+                ctx.Holdings.Add(holding);
+            }
 
-        //update portfolio with new holdings list
+            holding.CalculateHoldingValueVsPerformance(portfolio.orders, fxRate);
+        }
+
         ctx.Portfolio.Update(portfolio);
         await ctx.SaveChangesAsync();
+
         StateHasChanged();
 
+
+
     }
+
 
 
     public async void Buy()

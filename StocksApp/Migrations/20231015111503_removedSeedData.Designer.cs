@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StocksApp.Models;
 
@@ -11,9 +12,11 @@ using StocksApp.Models;
 namespace StocksApp.Migrations
 {
     [DbContext(typeof(StockAppDbContext))]
-    partial class StockAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231015111503_removedSeedData")]
+    partial class removedSeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,55 +24,6 @@ namespace StocksApp.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("StocksApp.Models.BVOrder", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("BookValueOrder")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("direction")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("fxRate")
-                        .HasColumnType("float");
-
-                    b.Property<double>("gbpCashValue")
-                        .HasColumnType("float");
-
-                    b.Property<int>("numberOfShares")
-                        .HasColumnType("int");
-
-                    b.Property<int>("portfolioId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("price")
-                        .HasColumnType("float");
-
-                    b.Property<string>("shortName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("symbol")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("portfolioId");
-
-                    b.ToTable("BookValueOrders");
-                });
 
             modelBuilder.Entity("StocksApp.Models.FX_models.FxRates", b =>
                 {
@@ -100,54 +54,6 @@ namespace StocksApp.Migrations
                             USDtoGBP = 1.0,
                             timestamp = 1
                         });
-                });
-
-            modelBuilder.Entity("StocksApp.Models.Holdings", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<double>("averagePrice")
-                        .HasColumnType("float");
-
-                    b.Property<double>("bookValue")
-                        .HasColumnType("float");
-
-                    b.Property<string>("currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("currentPerformance")
-                        .HasColumnType("float");
-
-                    b.Property<double>("currentPrice")
-                        .HasColumnType("float");
-
-                    b.Property<double>("currentValue")
-                        .HasColumnType("float");
-
-                    b.Property<int>("numberofShares")
-                        .HasColumnType("int");
-
-                    b.Property<int>("portfolioId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("shortName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("symbol")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("portfolioId");
-
-                    b.ToTable("Holdings");
                 });
 
             modelBuilder.Entity("StocksApp.Models.Order", b =>
@@ -245,6 +151,54 @@ namespace StocksApp.Migrations
                             currentPerformance = 0.0,
                             currentValue = 0.0
                         });
+                });
+
+            modelBuilder.Entity("StocksApp.Models.PortfolioStockModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("averagePrice")
+                        .HasColumnType("float");
+
+                    b.Property<double>("bookValue")
+                        .HasColumnType("float");
+
+                    b.Property<string>("currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("currentPerformance")
+                        .HasColumnType("float");
+
+                    b.Property<double>("currentPrice")
+                        .HasColumnType("float");
+
+                    b.Property<double>("currentValue")
+                        .HasColumnType("float");
+
+                    b.Property<int>("numberofShares")
+                        .HasColumnType("int");
+
+                    b.Property<int>("portfolioId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("shortName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("symbol")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("portfolioId");
+
+                    b.ToTable("PortfolioStockModel");
                 });
 
             modelBuilder.Entity("StocksApp.Models.Stock", b =>
@@ -350,28 +304,19 @@ namespace StocksApp.Migrations
                         });
                 });
 
-            modelBuilder.Entity("StocksApp.Models.BVOrder", b =>
-                {
-                    b.HasOne("StocksApp.Models.Portfolio", null)
-                        .WithMany("bookValueOrders")
-                        .HasForeignKey("portfolioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("StocksApp.Models.Holdings", b =>
-                {
-                    b.HasOne("StocksApp.Models.Portfolio", null)
-                        .WithMany("holdings")
-                        .HasForeignKey("portfolioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("StocksApp.Models.Order", b =>
                 {
                     b.HasOne("StocksApp.Models.Portfolio", null)
                         .WithMany("orders")
+                        .HasForeignKey("portfolioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("StocksApp.Models.PortfolioStockModel", b =>
+                {
+                    b.HasOne("StocksApp.Models.Portfolio", null)
+                        .WithMany("holdings")
                         .HasForeignKey("portfolioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -390,8 +335,6 @@ namespace StocksApp.Migrations
 
             modelBuilder.Entity("StocksApp.Models.Portfolio", b =>
                 {
-                    b.Navigation("bookValueOrders");
-
                     b.Navigation("holdings");
 
                     b.Navigation("orders");

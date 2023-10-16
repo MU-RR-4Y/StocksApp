@@ -126,16 +126,16 @@
         // update holdings in database
         foreach (var holding in user.userPortfolio.holdings)
         {
-            var databaseHolding = ctx.PortfolioStockModel.FirstOrDefault(h => h.symbol == holding.symbol);
+            var databaseHolding = ctx.Holdings.FirstOrDefault(h => h.symbol == holding.symbol);
             if (databaseHolding is not null)
             {
-                ctx.Entry<PortfolioStockModel>(databaseHolding).State = EntityState.Detached;
+                ctx.Entry<Holdings>(databaseHolding).State = EntityState.Detached;
                 holding.Id = databaseHolding.Id; 
-                ctx.PortfolioStockModel.Update(holding);
+                ctx.Holdings.Update(holding);
             }
             else
             {
-                ctx.PortfolioStockModel.Add(holding);
+                ctx.Holdings.Add(holding);
             }
             await ctx.SaveChangesAsync();
         }

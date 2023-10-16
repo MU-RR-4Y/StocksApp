@@ -12,7 +12,7 @@
                     <MudText>GBP Cost : @($"{((numberofShares * @stock.regularMarketPrice))*_USDtoGBP:C2}")</MudText>
                    <div class="d-flex  flex-row justify-center">
                         <MudNumericField @bind-Value="numberofShares" T="int"></MudNumericField>
-                        <MudButton Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Success">@($"{_direction}") Stock</MudButton>
+                <MudButton OnClick="@_tradeStock" Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Success">@($"{_direction}") Stock</MudButton>
                     </div>
                 }
                 else
@@ -24,7 +24,7 @@
                     <MudText>GBP Value : @($"{((numberofShares * @stock.regularMarketPrice)) * _USDtoGBP:C2}") </MudText>
                     <div class="d-flex  flex-row justify-center">
                         <MudNumericField @bind-Value="numberofShares" T="int"></MudNumericField>
-                        <MudButton Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Error">@($"{_direction}") Stock</MudButton>
+                        <MudButton OnClick="@_tradeStock" Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Error">@($"{_direction}") Stock</MudButton>
                     </div>
 
                 }
@@ -41,7 +41,7 @@
     [Parameter]
     public Portfolio portfolio { get; set;}
     [Parameter]
-    public Func<Stock, Portfolio, string, Task>? tradeStock { get; set; }
+    public Func<Stock, Portfolio, string, int, double, Task> addOrder { get; set; }
 
 
     public double _USDtoGBP { get; set; }
@@ -57,7 +57,8 @@
 
     private async Task _tradeStock()
     {
-        await tradeStock.Invoke(stock, portfolio, _direction);
+        await addOrder.Invoke(stock, portfolio, _direction, numberofShares, _USDtoGBP);
+        
     }
 }
 
