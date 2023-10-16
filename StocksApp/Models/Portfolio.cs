@@ -49,6 +49,17 @@ namespace StocksApp.Models
                 portfolioId = Id,
                 gbpCashValue = (_numberOfShares * stock.regularMarketPrice) * fxRate
             };
+
+            //DEBIT or CREDIT cash appropiately
+            if(_direction == "buy" || _direction == "Buy")
+            {
+                cash -= order.gbpCashValue;
+            }
+            else
+            {
+                cash += order.gbpCashValue;
+            }
+            
             orders.Add(order);
             return order;
         }
@@ -65,7 +76,7 @@ namespace StocksApp.Models
             return null;
         }
 
-        public void UpdateHoldings(Order _order, double fxRate)
+        public void UpdateHoldings(Order _order)
         {
                 var orderStock = _order.symbol;
                 //check if stock already has a holding
@@ -73,38 +84,42 @@ namespace StocksApp.Models
                 if (holding != null) { holding.numberofShares = 0; }
 
              //loop through each order on portfolio
-            foreach (var order in orders)
+            foreach (Order order in orders)
             {
-                // update existing holdings in DB
-                Holdings updatedHolding = holding;
-                if (updatedHolding is not null)
+                if (order.symbol == orderStock && order.portfolioId == Id)
                 {
-                    int index = holdings.IndexOf(updatedHolding);
-                    if(order.direction == "buy" || order.direction == "Buy" )
+
+                    // update existing holdings in DB
+                    Holdings updatedHolding = holding;
+                    if (updatedHolding is not null)
                     {
-                        holdings[index].numberofShares += order.numberOfShares;
-                        //holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
+                        //int index = holdings.IndexOf(updatedHolding);
+                        if(order.direction == "buy" || order.direction == "Buy" )
+                        {
+                            holdings.FirstOrDefault(h =>h.Id == updatedHolding.Id).numberofShares += order.numberOfShares;
+                            //holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
+                        }
+                        else
+                        {
+                            holdings.FirstOrDefault(h => h.Id == updatedHolding.Id).numberofShares -= order.numberOfShares;
+                            //holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
+                        };
                     }
                     else
                     {
-                        holdings[index].numberofShares -= order.numberOfShares;
-                        //holdings[index].CalculateHoldingValueVsPerformance(orders, fxRate);
-                    };
-                }
-                else
-                {
-                    // Add new holding in DB if required
-                    Holdings newHolding = new Holdings()
-                    {
-                        portfolioId = Id,
-                        shortName = order.shortName,
-                        symbol = order.symbol,
-                        numberofShares = order.numberOfShares,
-                        currency = order.currency,
-                        currentPrice = order.price
-                    };
-                    //newPSM.CalculateHoldingValueVsPerformance(orders, fxRate);
-                    holdings.Add(newHolding);
+                        // Add new holding in DB if required
+                        Holdings newHolding = new Holdings()
+                        {
+                            portfolioId = Id,
+                            shortName = order.shortName,
+                            symbol = order.symbol,
+                            numberofShares = order.numberOfShares,
+                            currency = order.currency,
+                            currentPrice = order.price
+                        };
+                        //newPSM.CalculateHoldingValueVsPerformance(orders, fxRate);
+                        holdings.Add(newHolding);
+                    }
                 }
 
             }

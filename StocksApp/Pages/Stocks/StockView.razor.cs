@@ -15,8 +15,7 @@ namespace StocksApp.Pages.Stocks
         NavigationManager NavManager {  get; set; }
         [Inject]
         IDbContextFactory<StockAppDbContext> context {  get; set; }
-        //[Inject]
-        //IHttpClientFactory _clientFactory { get; set; }
+
 
 
 
@@ -80,32 +79,33 @@ namespace StocksApp.Pages.Stocks
 
             //Create new order
             Order newOrder = portfolio.CreateNewOrder(stock, _direction, numberOfShares, fxRate);
-            ctx.Orders.Add(newOrder);
-            await ctx.SaveChangesAsync();
+            //ctx.Orders.Add(newOrder);
+            //ctx.Portfolio.Update(portfolio);
+            //await ctx.SaveChangesAsync();
 
 
 
-            // update client side holdings
+            //// update client side holdings
 
-            portfolio.UpdateHoldings(newOrder, fxRate);
+            portfolio.UpdateHoldings(newOrder);
 
-            // update holdings in database
-            foreach (var holding in portfolio.holdings)
-            {
-                var databaseHolding = ctx.Holdings.FirstOrDefault(h => (h.symbol == h.symbol && h.portfolioId == portfolio.Id));
-                if (databaseHolding is not null)
-                {
-                    ctx.Entry<Holdings>(databaseHolding).State = EntityState.Detached;
-                    holding.Id = databaseHolding.Id;
-                    ctx.Holdings.Update(holding);
-                }
-                else
-                {
-                    ctx.Holdings.Add(holding);
-                }
+            //// update holdings in database
+            //foreach (var holding in portfolio.holdings)
+            //{
+            //    var databaseHolding = ctx.Holdings.FirstOrDefault(h => (h.symbol == h.symbol && h.portfolioId == portfolio.Id));
+            //    if (databaseHolding is not null)
+            //    {
+            //        ctx.Entry<Holdings>(databaseHolding).State = EntityState.Detached;
+            //        holding.Id = databaseHolding.Id;
+            //        ctx.Holdings.Update(holding);
+            //    }
+            //    else
+            //    {
+            //        ctx.Holdings.Add(holding);
+            //    }
 
-                // holding.CalculateHoldingValueVsPerformance(portfolio.orders, fxRate);
-            }
+            //    // holding.CalculateHoldingValueVsPerformance(portfolio.orders, fxRate);
+            //}
 
             ctx.Portfolio.Update(portfolio);
             await ctx.SaveChangesAsync();

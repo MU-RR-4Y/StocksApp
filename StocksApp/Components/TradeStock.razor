@@ -1,7 +1,8 @@
-﻿@inject IDbContextFactory<StockAppDbContext> context 
-
+﻿
 <MudPopover Open="@visibility" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.CenterCenter" Style="padding:16px; margin: 16px;">
     <h1 style="text-decoration-line: underline;">@($"{_direction}") @stock.shortName</h1>
+
+
         <div class="d-flex flex-column" >
                 @if(_direction == "Buy")
                 {
@@ -9,10 +10,14 @@
                     <MudText>Price : @stock.regularMarketPrice</MudText>
                     <MudText>USD Cost :@($"${(numberofShares * @stock.regularMarketPrice):N2}")</MudText>
                     <MudText>FX rate : @_USDtoGBP</MudText>
-                    <MudText>GBP Cost : @($"{((numberofShares * @stock.regularMarketPrice))*_USDtoGBP:C2}")</MudText>
+                    <MudText>GBP Cost : @($"{GBPValue:C2}")</MudText>
+                    @if(ErrorMessage is not null)
+                       {
+                        <MudText>@ErrorMessage</MudText>
+                       }
                    <div class="d-flex  flex-row justify-center">
-                        <MudNumericField @bind-Value="numberofShares" T="int"></MudNumericField>
-                <MudButton OnClick="@_tradeStock" Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Success">@($"{_direction}") Stock</MudButton>
+                        <MudNumericField TextChanged="@CalculateGBPValue" @bind-Value="numberofShares" T="int"></MudNumericField>
+                        <MudButton OnClick="@_tradeStock" Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Success">@($"{_direction}") Stock</MudButton>
                     </div>
                 }
                 else
@@ -21,9 +26,13 @@
                     <MudText>Price : @stock.regularMarketPrice</MudText>
                     <MudText>USD Value :@($"${(numberofShares * @stock.regularMarketPrice):N2}")</MudText>
                     <MudText>FX rate : @_USDtoGBP</MudText>
-                    <MudText>GBP Value : @($"{((numberofShares * @stock.regularMarketPrice)) * _USDtoGBP:C2}") </MudText>
+            <MudText>GBP Value : @($"{GBPValue:C2}") </MudText>
+                    @if (ErrorMessage is not null)
+                    {
+                        <MudText>@ErrorMessage</MudText>
+                    }
                     <div class="d-flex  flex-row justify-center">
-                        <MudNumericField @bind-Value="numberofShares" T="int"></MudNumericField>
+                        <MudNumericField TextChanged="@CalculateGBPValue" @bind-Value="numberofShares" T="int"></MudNumericField>
                         <MudButton OnClick="@_tradeStock" Variant="Variant.Filled" Class="ml-auto mr-n3 mb-1" Color="Color.Error">@($"{_direction}") Stock</MudButton>
                     </div>
 
@@ -32,34 +41,7 @@
 </MudPopover>
 
 @code {
-    [Parameter]
-    public bool visibility { get; set; }
-    [Parameter]
-    public Stock stock { get; set; }
-    [Parameter]
-    public string _direction { get; set; }
-    [Parameter]
-    public Portfolio portfolio { get; set;}
-    [Parameter]
-    public Func<Stock, Portfolio, string, int, double, Task> addOrder { get; set; }
-
-
-    public double _USDtoGBP { get; set; }
-    public int numberofShares { get; set; }
-    public bool canAfford { get; set; }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        using var ctx = context.CreateDbContext();
-        var fxrates = ctx.FxRates.FirstOrDefault();
-        _USDtoGBP = fxrates.USDtoGBP;
-    }
-
-    private async Task _tradeStock()
-    {
-        await addOrder.Invoke(stock, portfolio, _direction, numberofShares, _USDtoGBP);
-        
-    }
+   
 }
 
 

@@ -20,7 +20,7 @@ namespace StocksApp.Pages.Users
 
 
 
-        // TODO: setup layout for portfolio view
+        
         // TODO: track book value
         // TODO: track current value
         // TODO: calculate current performance
@@ -50,7 +50,7 @@ namespace StocksApp.Pages.Users
             await ctx.SaveChangesAsync();
 
             // update client side holdings
-            user.userPortfolio.UpdateHoldings(newOrder, fxRate);
+            user.userPortfolio.UpdateHoldings(newOrder);
 
             // update holdings in database
             foreach (var holding in user.userPortfolio.holdings)

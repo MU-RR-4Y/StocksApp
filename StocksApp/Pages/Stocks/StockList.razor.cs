@@ -23,11 +23,14 @@ namespace StocksApp.Pages.Stocks
 
         protected async override Task OnInitializedAsync()
         {
-            using var client = _clientFactory.CreateClient("yahoo");
-            var content = await client.GetFromJsonAsync<ApiStockModel>($"market/v2/get-quotes?region=US&symbols={stockIds.SymbolString}");
-            // TODO: Need to add traycatch for this request
-            stocks = content.quoteResponse.result;
-            AddStockInfo(stocks);
+            //using var client = _clientFactory.CreateClient("yahoo");
+            //var content = await client.GetFromJsonAsync<ApiStockModel>($"market/v2/get-quotes?region=US&symbols={stockIds.SymbolString}");
+            //// TODO: Need to add traycatch for this request
+            //stocks = content.quoteResponse.result;
+            //AddStockInfo(stocks);
+
+            using var ctx = ctxFactory.CreateDbContext();
+            stocks = await ctx.Stocks.ToArrayAsync();
 
         }
 
