@@ -39,14 +39,15 @@
 @if(userList is not null)
 {
     <div>
-
-    <MudSelect T="Portfolio" Label="Portfolios" AnchorOrigin="Origin.BottomCenter" @bind-Value="selectedPortfolio">
-        @foreach (User user in userList)
-        {
-            <MudSelectItem Value="user.userPortfolio" >@user.FirstName @user.LastName</MudSelectItem>
-        }
-    </MudSelect>
-    <MudButton  OnClick="Buy" Variant="Variant.Filled" Color="Color.Success">Buy stock</MudButton>
+    <MudForm>
+        <MudSelect T="Portfolio" Label="Portfolios" AnchorOrigin="Origin.BottomCenter" @bind-Value="selectedPortfolio" Required="true">
+            @foreach (User user in userList)
+            {
+                <MudSelectItem required Value="user.userPortfolio" >@user.FirstName @user.LastName</MudSelectItem>
+            }
+        </MudSelect>
+        <MudButton  OnClick="Buy" Variant="Variant.Filled" Color="Color.Success">Buy stock</MudButton>
+    </MudForm>
     </div>
 
 
@@ -177,7 +178,7 @@
         // update holdings in database
         foreach (var holding in portfolio.holdings)
         {
-            var databaseHolding = ctx.Holdings.FirstOrDefault(h => h.symbol == holding.symbol);
+            var databaseHolding = ctx.Holdings.FirstOrDefault(h => (h.symbol == h.symbol && h.portfolioId == portfolio.Id));
             if (databaseHolding is not null)
             {
                 ctx.Entry<Holdings>(databaseHolding).State = EntityState.Detached;
@@ -189,7 +190,7 @@
                 ctx.Holdings.Add(holding);
             }
 
-            holding.CalculateHoldingValueVsPerformance(portfolio.orders, fxRate);
+            // holding.CalculateHoldingValueVsPerformance(portfolio.orders, fxRate);
         }
 
         ctx.Portfolio.Update(portfolio);
