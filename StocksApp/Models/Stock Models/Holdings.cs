@@ -23,7 +23,7 @@ namespace StocksApp.Models
 
 
         public double averagePrice { get; set; }
-        public double bookValue { get; set; } = 0;
+        public double initialValue { get; set; } = 0;
         public double currentValue { get; set; } = 0;
         public double currentPerformance { get; set; } = 0;
 
@@ -40,61 +40,68 @@ namespace StocksApp.Models
             }
         }
 
-        public void CalculateHoldingValueVsPerformance(List<Order> orders, double fxRate)
+        public void CalculateHoldingValueVsPerformance(List<InitialValueOrder> orders, double fxRate, string symbol)
         {
+
             //Value in GBP
             currentValue = (numberofShares * currentPrice) * fxRate;
 
-            bookValue = CalculateBookValue(orders, fxRate);
+            initialValue = CalculateBookValue(orders, fxRate);
 
             //Average USD price to compare against current visible USD price of stock
-            averagePrice = (bookValue / numberofShares) / fxRate;
+            averagePrice = (initialValue / numberofShares) / fxRate;
 
-            if(bookValue == 0 || currentValue == 0)
+            if(initialValue == 0 || currentValue == 0)
             {
                 currentPerformance = 0;
             }
             else
             {
-                currentPerformance = (currentValue / bookValue) - 1;
+                currentPerformance = (currentValue / initialValue) - 1;
             }
 
         }
 
-        public double CalculateBookValue(List<Order> orders, double fxRate)
+        public double CalculateBookValue(List<InitialValueOrder> orders, double fxRate)
+
+
+
+
+
         {
+            List<InitialValueOrder> ordersForHolding = orders.Where(o => o.symbol == symbol).ToList();
             double orderTotal = 0;
 
             //Set a list for BUY orders
-            List<Order> FIFOOrders = new List<Order>();
-            // Set A list for SELL orders
-            List<Order> SellOrders = new List<Order>();
+            List<InitialValueOrder> FIFOOrders = new List<InitialValueOrder>();
+            // Set a list for SELL orders
+            List<InitialValueOrder> SellOrders = new List<InitialValueOrder>();
             // Set a list for Buy Order holdings which have ben sold
-            List<Order> SoldOrders = new List<Order>();
+            List<InitialValueOrder> SoldOrders = new List<InitialValueOrder>();
 
             
-            List<Order> FIFOOrdersCopy = new List<Order> ();
+            List<InitialValueOrder> FIFOOrdersCopy = new List<InitialValueOrder> ();
 
 
 
-            foreach (var order in orders)
+            foreach (var order in ordersForHolding)
             {
                 // ADD BUY orders to a List
-                if (order.symbol == symbol  && (order.direction == "buy" || order.direction == "Buy"))
+                if (order.direction == "buy" || order.direction == "Buy")
                 {   // total cash value in GBP
-                        FIFOOrders.Add(order);
-                        
+                    FIFOOrders.Add(order);
+                    FIFOOrdersCopy.Add(order);
                 }
                 // ADD sell orders to a list
-                else if(order.symbol == symbol && (order.direction == "sell" || order.direction == "Sell"))
+                else if(order.direction == "sell" || order.direction == "Sell")
                 {
                     SellOrders.Add(order);
                 }
             }
-            foreach (var order in FIFOOrders)
-            {
-                FIFOOrdersCopy.Add(order);
-            }
+            //foreach (var order in FIFOOrders)
+            //{
+            //    FIFOOrdersCopy.Add(order);
+            //}
 
 
             foreach (var order in SellOrders)
@@ -102,11 +109,9 @@ namespace StocksApp.Models
                 int BuyOrderTotal = 0;
                 int difference = 0;
 
-
-                
                 while (order.numberOfShares >= BuyOrderTotal) 
                 {
-                    Order buyOrder = FIFOOrdersCopy[0];
+                    InitialValueOrder buyOrder = FIFOOrdersCopy[0];
                     FIFOOrdersCopy.RemoveAt(0);
                     SoldOrders.Add(buyOrder); 
                     BuyOrderTotal += buyOrder.numberOfShares;

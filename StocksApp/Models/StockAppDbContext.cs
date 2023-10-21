@@ -12,7 +12,7 @@ namespace StocksApp.Models
         public DbSet<Stock>Stocks => Set<Stock>();
         public DbSet<Holdings> Holdings => Set<Holdings>();
         public DbSet<Order> Orders => Set<Order>();
-        public DbSet<BVOrder> BookValueOrders => Set<BVOrder>();
+        public DbSet<InitialValueOrder> InitialValueOrders => Set<InitialValueOrder>();
         public DbSet<FxRates> FxRates => Set<FxRates>();    
 
         public StockAppDbContext(DbContextOptions<StockAppDbContext> options) : base(options) { }
@@ -23,9 +23,9 @@ namespace StocksApp.Models
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Portfolio>()
             .HasData(
-            new Portfolio { Id = 1, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 50000 },
-            new Portfolio { Id = 2, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 76000 },
-            new Portfolio { Id = 3, bookValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 25000 });
+            new Portfolio { Id = 1, initialValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 50000 },
+            new Portfolio { Id = 2, initialValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 76000 },
+            new Portfolio { Id = 3, initialValue = 0, currentValue = 0, currentPerformance = 0, holdings = { }, orders = { }, cash = 25000 });
 
             modelBuilder.Entity<User>()
                 .HasData(
@@ -37,7 +37,7 @@ namespace StocksApp.Models
 
             modelBuilder.Entity<Order>();
 
-            modelBuilder.Entity<BVOrder>();
+            modelBuilder.Entity<InitialValueOrder>();
 
             modelBuilder.Entity<Holdings>();
 

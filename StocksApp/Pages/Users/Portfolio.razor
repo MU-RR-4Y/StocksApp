@@ -10,7 +10,7 @@
 <MudTabs Outlined="true" Position="@Position.Top" Rounded="true" Border="true"
          ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
     <MudTabPanel Text="Overview">
-        <MudText>Portfolio BookValue  : @($"{user.userPortfolio.bookValue:C2}")  </MudText>
+        <MudText>Portfolio BookValue  : @($"{user.userPortfolio.initialValue:C2}")  </MudText>
         <MudText>Portfolio Value  : @($"{user.userPortfolio.currentValue:C2}")  </MudText>
         <MudText>Portfolio Performance  : @($"{user.userPortfolio.currentPerformance *100 :N2}%")  </MudText>
         <MudText>Cash Held : @user.userPortfolio.cash </MudText>

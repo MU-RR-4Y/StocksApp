@@ -15,8 +15,8 @@ namespace StocksApp.Models
         [Required]
         public List<Order> orders { get; set; } = new List<Order>();
         [Required]
-        public List<BVOrder> bookValueOrders { get; set; } = new List<BVOrder>();
-        public double bookValue { get; set; } = 0;
+        public List<InitialValueOrder> initialValueOrders { get; set; } = new List<InitialValueOrder>();
+        public double initialValue { get; set; } = 0;
         public double currentValue { get; set; } = 0;
         public double currentPerformance { get; set; } = 0;
         public double cash { get; set; } = 0;
@@ -50,6 +50,19 @@ namespace StocksApp.Models
                 gbpCashValue = (_numberOfShares * stock.regularMarketPrice) * fxRate
             };
 
+            InitialValueOrder bvOrder = new InitialValueOrder
+            {
+                shortName = stock.shortName,
+                direction = _direction,
+                numberOfShares = _numberOfShares,
+                symbol = stock.symbol,
+                currency = stock.currency,
+                price = stock.regularMarketPrice,
+                fxRate = fxRate,
+                portfolioId = Id,
+                gbpCashValue = (_numberOfShares * stock.regularMarketPrice) * fxRate
+            };
+
             //DEBIT or CREDIT cash appropiately
             if(_direction == "buy" || _direction == "Buy")
             {
@@ -61,6 +74,7 @@ namespace StocksApp.Models
             }
             
             orders.Add(order);
+            initialValueOrders.Add(bvOrder);
             return order;
         }
 
@@ -131,16 +145,16 @@ namespace StocksApp.Models
             foreach (Holdings holding in holdings)
             {
                 //Values in GBP
-                bookValue += holding.bookValue * fxRate;
+                initialValue += holding.initialValue * fxRate;
                 currentValue += holding.currentValue * fxRate;
             }
-            if (bookValue == 0 || currentValue == 0)
+            if (initialValue == 0 || currentValue == 0)
             {
                 currentPerformance = 0;
             }
             else
             {
-                currentPerformance = (currentValue / bookValue) - 1;
+                currentPerformance = (currentValue / initialValue) - 1;
             }
 
 

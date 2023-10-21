@@ -2,7 +2,7 @@
 
 namespace StocksApp.Models
 {
-    public class BVOrder
+    public class InitialValueOrder
     {
         public int Id { get; set; }
         [Required]
@@ -23,10 +23,7 @@ namespace StocksApp.Models
         public double gbpCashValue { get; set; }
         [Required]
         public int portfolioId { get; set; }
-        public bool BookValueOrder { get; set; } = true;
-
-        
-        
+        public bool InitialValueOrder { get; set; } = true;
 
 
     }

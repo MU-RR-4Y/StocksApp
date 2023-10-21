@@ -79,33 +79,16 @@ namespace StocksApp.Pages.Stocks
 
             //Create new order
             Order newOrder = portfolio.CreateNewOrder(stock, _direction, numberOfShares, fxRate);
-            //ctx.Orders.Add(newOrder);
-            //ctx.Portfolio.Update(portfolio);
-            //await ctx.SaveChangesAsync();
-
-
 
             //// update client side holdings
 
             portfolio.UpdateHoldings(newOrder);
 
-            //// update holdings in database
-            //foreach (var holding in portfolio.holdings)
-            //{
-            //    var databaseHolding = ctx.Holdings.FirstOrDefault(h => (h.symbol == h.symbol && h.portfolioId == portfolio.Id));
-            //    if (databaseHolding is not null)
-            //    {
-            //        ctx.Entry<Holdings>(databaseHolding).State = EntityState.Detached;
-            //        holding.Id = databaseHolding.Id;
-            //        ctx.Holdings.Update(holding);
-            //    }
-            //    else
-            //    {
-            //        ctx.Holdings.Add(holding);
-            //    }
-
-            //    // holding.CalculateHoldingValueVsPerformance(portfolio.orders, fxRate);
-            //}
+            // update performance per holding
+            foreach (var holding in portfolio.holdings)
+            {
+               holding.CalculateHoldingValueVsPerformance(portfolio.initialValueOrders, fxRate,stock.symbol);
+            }
 
             ctx.Portfolio.Update(portfolio);
             await ctx.SaveChangesAsync();

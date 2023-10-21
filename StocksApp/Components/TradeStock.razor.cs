@@ -42,11 +42,11 @@ namespace StocksApp.Components
         private void tradeIsValid()
         {
             Holdings holding = portfolio.FindHolding(stock.symbol);
-            if ((_direction == "buy" || _direction == "Buy") && portfolio.cash >= GBPValue)   // check for cash in portfolio  - WORKS
+            if ((_direction == "buy" || _direction == "Buy") && portfolio.cash >= GBPValue && numberofShares > 0)   // check for cash in portfolio  - WORKS
             {
                 isValid = true;
             }
-            else if ((_direction == "sell" || _direction == "Sell") && holding.numberofShares >= numberofShares)
+            else if ((_direction == "sell" || _direction == "Sell") && holding.numberofShares >= numberofShares && numberofShares > 0)
             {
                 isValid = true;
             }
@@ -68,6 +68,7 @@ namespace StocksApp.Components
             {
                 await addOrder.Invoke(stock, portfolio, _direction, numberofShares, _USDtoGBP);
                 isValid = false;
+                numberofShares = 0;
             }
             else
             {
