@@ -23,7 +23,7 @@ namespace StocksApp.Models
         public double gbpCashValue { get; set; }
         [Required]
         public int portfolioId { get; set; }
-        public bool InitialValueOrder { get; set; } = true;
+        public bool InitialValOrder { get; set; } = true;
 
 
     }
